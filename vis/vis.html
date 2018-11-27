@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<script lang="javascript" src="js/jquery-3.1.0.min.js"></script>
+	<script lang="javascript" src="js/d3.v4.min.js"></script>
+	<script lang="javascript" src="js/data.js"></script>
+	<link rel="stylesheet" href="css/styles.css">
+</head>
+<body>
+	<div>
+
+		<svg width=100% height=100%></svg>
+		<script>
+			var svg = d3.select("svg"),
+			    width = parseFloat(svg.style("width")),
+			    height = parseFloat(svg.style("height")),
+			    g = svg.append("g");
+
+			var source_sentiment = data.source_sentiment
+
+			g.selectAll("circle")
+			  .data(source_sentiment)
+			 	.enter()
+				.append("circle")
+
+				.attr("r", function(d) {
+					return d.sentiment.magnitude * 50
+				})
+				.attr("cx", function(d, i) {
+					return i * 100 + 50
+				})
+				.attr("cy", 100)
+				.text(function(d) {
+					return d.source.name
+				});
+				/*
+				.attr("r", 50)
+				.attr("cx", 100)
+				.attr("cy", 100)
+				*/
+
+
+
+			g.append()
+
+		</script>
+	</div>
+</body>
+</hsrc
