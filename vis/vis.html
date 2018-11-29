@@ -74,23 +74,27 @@
 		  im.style('visibility','hidden'); //should disable rendering
 
 		  var x_offset=25;
+			var center_x = width / 2.0;
+			var center_y = height / 2.0;
 		  for (i=0; i<sorted_keys.length; i++) {
 		      var x_val = i*55+x_offset;
 		      var key = sorted_keys[i];
-		      g.append('circle')
-			  .attr("r", json_data[key]['positive'] * 50)
-			  .attr("cx",x_val)
-			  .attr("cy",height/2.0-45)
+		      g.append('rect')
+			  .attr("height", json_data[key]['positive'] * 100)
+				.attr("width", 50)
+			  .attr("x", i * 52 + x_offset)
+			  .attr("y", center_y - json_data[key]['positive'] * 100)
 			  .style("fill","green")
 			  .style('visibility','visible');
 
-		      g.append('circle')
-			  .attr("r", json_data[key]['negative'] * 50 * -1)
-			  .attr("cx",x_val)
-			  .attr("cy",height/2.0+45)
-				 .style("fill","red")
-			  .style('visibility','visible');
-
+					g.append('rect')
+				.attr("height", json_data[key]['negative'] * -100)
+				.attr("width", 50)
+				.attr("x", i * 52 + x_offset)
+				.attr("y", center_y + 2)
+				.style("fill","red")
+				.style('visibility','visible');
+/*
 		      g.append('text')
 			  .attr('x',x_val)
 			  .attr('y',height/2.0)
@@ -98,6 +102,7 @@
 			  .style('fill','white')
 			  .style('text-anchor','middle')
 			  .style('visibility','visible');
+				*/
 		  };
 		  people_text.style('visibility','visible');
 	      }
