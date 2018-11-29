@@ -32,45 +32,78 @@
 	  .attr('y','50%')
 	  .attr('width',200)
 	  .attr('height',200);
+     
       
-      var d = $.ajax({
-	  crossOrigin: true,
-	  url: env.ngrok_ip + '/welcome',
-	  type: "POST",
-	  data: 'name=Donald Trump',				
-	  success: function(returned_data) {		 
-	      json_data = JSON.parse(returned_data);
-	      sorted_keys = Object.keys(json_data).sort();
-	      
-	      im.style('visibility','hidden'); //should disable rendering
-	      
-	      var x_offset=25;
-	      for (i=0; i<sorted_keys.length; i++) {
-		  console.log(i);
-		  var x_val = i*55+x_offset;
-		  var key = sorted_keys[i];
-		  g.append('circle')
-		      .attr("r", json_data[key]['positive'] * 50)
-		      .attr("cx",x_val)
-		      .attr("cy",height/2.0-45)
-		      .style("fill","green");
+      var d = call_ajax('Donald Trump')
+      
+
+
+      var people=['Donald Trump','Jamal Khashoggi','Lettuce'];
+
+      var people_text = d3.select('g').selectAll('text')
+	  .data(people)
+	  .enter()
+	  .append('text')
+      	  .attr('x',function(d,i){ return i*250+250; })
+	  .attr('y',height/2.0+150)
+	  .text(function(d) { return d; })
+	  .style('fill','white')
+	  .style('text-anchor','middle')
+	  .style('visibility','hidden')
+	  .on('mouseover',function(d){
+	      d3.select(this).style('cursor','pointer');
+	  })
+	  .on('click',function(d){
+	      d3.selectAll('circle').style('visibility','hidden');
+	      d3.selectAll('text').style('visibility','hidden');
+	      im.style('visibility','visible'); //should disable rendering
+	      call_ajax(d);	    
+	  });
+      
+      
+      function call_ajax(query){
+	  $.ajax({
+	      crossOrigin: true,
+	      url: env.ngrok_ip + '/welcome',
+	      type: "POST",
+	      data: 'name='+query,				
+	      success: function(returned_data) {		 
+		  json_data = JSON.parse(returned_data);
+		  sorted_keys = Object.keys(json_data).sort();
 		  
-		  g.append('circle')
-		      .attr("r", json_data[key]['negative'] * 50 * -1)
-		      .attr("cx",x_val)
-		      .attr("cy",height/2.0+45)
-		      .style("fill","red");
+		  im.style('visibility','hidden'); //should disable rendering
 		  
-		  g.append('text')
-		      .attr('x',x_val)
-		      .attr('y',height/2.0)
-		      .text(key)
-		      .style('fill','white')
-		      .style('text-anchor','middle');		     		     		   
-	      };
-	    }
-      });		
-      </script>    
+		  var x_offset=25;
+		  for (i=0; i<sorted_keys.length; i++) {
+		      var x_val = i*55+x_offset;
+		      var key = sorted_keys[i];
+		      g.append('circle')
+			  .attr("r", json_data[key]['positive'] * 50)
+			  .attr("cx",x_val)
+			  .attr("cy",height/2.0-45)
+			  .style("fill","green")
+			  .style('visibility','visible');
+		      
+		      g.append('circle')
+			  .attr("r", json_data[key]['negative'] * 50 * -1)
+			  .attr("cx",x_val)
+			  .attr("cy",height/2.0+45)
+				 .style("fill","red")
+			  .style('visibility','visible');
+			  
+		      g.append('text')
+			  .attr('x',x_val)
+			  .attr('y',height/2.0)
+			  .text(key)
+			  .style('fill','white')
+			  .style('text-anchor','middle')
+			  .style('visibility','visible');		     		     		  
+		  };
+		  people_text.style('visibility','visible');
+	      }
+	  });
+      }
+    </script>    
   </body>
 </html>
 

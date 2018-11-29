@@ -1,3 +1,3 @@
 env = {
- ngrok_ip: 'https://9ab9b9be.ngrok.io'
+ ngrok_ip: 'https://d3dcaa6c.ngrok.io'
 }

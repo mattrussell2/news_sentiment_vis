@@ -38,12 +38,11 @@ short_labels = ['ABC','BBC','BBN','BI','BZFD','CBC','CBS','CNBC','CNN','FT','FOX
 
 @app.route("/welcome", methods=['GET', 'POST'])
 def hola():
-    dict = request.form.to_dict()
-    print(dict)
-    print ('received query')
+    req = request.form.to_dict()   
     org_values = {}
     for org in news_orgs:
-        cursor.execute("SELECT sentiment_score,sentiment_magnitude from mention where name='Donald Trump' and source_id='"+org +"' limit 100;")
+        print("STRING: \n" + "SELECT sentiment_score,sentiment_magnitude from mention where name='"+req['name']+"' and source_id='"+org +"';")
+        cursor.execute("SELECT sentiment_score,sentiment_magnitude from mention where name='"+req['name']+"' and source_id='"+org +"';")# limit 100;")
         org_values[org] = []      
         org_values[org] = [[y for y in x]  for x in cursor.fetchall()]
         if org_values[org] == []:
