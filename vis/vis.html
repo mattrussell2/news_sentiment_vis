@@ -1,114 +1,110 @@
 <!DOCTYPE html>
 <html>
-<head>
-	<script lang="javascript" src="js/jquery-3.1.0.min.js"></script>
-	<script lang="javascript" src="js/d3.v4.min.js"></script>
-	<script lang="javascript" src="js/data.js"></script>
-	<link rel="stylesheet" href="css/styles.css">
-</head>
-<body>
-		<svg width=100% height=100%></svg>
-		<script>
-			var svg = d3.select("svg"),
-			    width = parseFloat(svg.style("width")),
-			    height = parseFloat(svg.style("height")),
-			    g = svg.append("g");
+  <head>
+    <script src="js/env.js"></script>
+    <script lang="javascript" src="js/jquery-3.1.0.min.js"></script>
+    <script lang="javascript" src="js/d3.v4.min.js"></script>
+    <script lang="javascript" src="js/data.js"></script>
+    <script type="text/application/javascript/json" src="js/jquery.ajax-cross-origin.min.js"></script>
+    <link rel="stylesheet" href="css/styles.css">
+  </head>
+  <body>
+    <svg width=100% height=100%></svg>
+    <script>
+      var width = $(window).width();
+      var height = $(window).height();
 
-			var source_sentiment = data.source_sentiment;
+      var svg = d3.select("svg")
+	  .attr('width','100%')
+	  .attr('height','100%');
 
-			var center = 600;
-			var width = 200;
+      var background = svg.append('rect')
+	  .attr("width",'100%')
+	  .attr('height','100%')
+	  .attr('fill','black');
 
-			g.selectAll("#pos")
-			  .data(source_sentiment)
-				.enter()
-				.append("rect")
-				.attr("id", "pos")
-				.attr("x", center)
-				.attr("y", function(d, i) {
-					return i * 50 + i * 5 + 50;
-				})
-				.attr("fill", "green")
-				.attr("width", function(d) {
-					return d.pos_sentiment.salience;
-				})
-				.attr("height", 50)
-				.attr("opacity", function(d) {
-					return d.pos_sentiment.score;
-				});
+      var g = svg.append('g');
+
+      //credit http://samherbert.net/svg-loaders/ for the startup image
+      var im = g.append('svg:image')
+	  .attr('xlink:href','js/svg_loading/svg-loaders/circles.svg')
+	  .attr('x','50%')
+	  .attr('y','50%')
+	  .attr('width',200)
+	  .attr('height',200);
 
 
-			g.selectAll("#neg")
-			  .data(source_sentiment)
-				.enter()
-				.append("rect")
-				.attr("id", "neg")
-				.attr("x", function(d) {
-					return center + (d.neg_sentiment.salience) - 2;
-				})
-				.attr("y", function(d, i) {
-					return i * 50 + i * 5 + 50;
-				})
-				.attr("fill", "red")
-				.attr("width", function(d) {
-					return (- d.neg_sentiment.salience);
-				})
-				.attr("height", 50)
-				.attr("opacity", function(d) {
-					return - d.neg_sentiment.score;
-				});
-
-/*
-			g.append("rect")
-				.attr("x", center)
-				.attr("y", 50)
-				.attr("fill", "green")
-				.attr("width", 250)
-				.attr("height", 50)
-				.attr("opacity", 0.5);
-*/
-
-			/*
-
-			var circle = g.selectAll("circle")
-			  .data(source_sentiment)
-			 	.enter()
-				.append("circle")
-				.attr("r", function(d) {
-					return d.sentiment.magnitude * 50
-				})
-				.attr("cx", function(d, i) {
-					return i * 150 + 50
-				})
-				.attr("cy", 100)
-				.attr("fill", function(d) {
-					if (d.sentiment.score < 0) {
-						return "red";
-					} else {
-						return "green";
-					}
-				})
-				.attr("opacity", function(d) {
-					return d.sentiment.magnitude * 1.5
-				});
-
-			g.selectAll("text")
-			  .data(source_sentiment)
-				.enter()
-				.append("text")
-				.attr("x", function(d, i) {
-					return i * 150
-				})
-				.attr("y", 200)
-				.text(function(d) {
-					return d.source.name
-				})
-				.attr("font-size", "20px")
-				.attr("fill", "black")
-
-				*/
+      var d = call_ajax('Donald Trump')
 
 
-		</script>
-</body>
-</hsrc
+
+      var people=['Donald Trump','Jamal Khashoggi','Lettuce'];
+
+      var people_text = d3.select('g').selectAll('text')
+	  .data(people)
+	  .enter()
+	  .append('text')
+      	  .attr('x',function(d,i){ return i*250+250; })
+	  .attr('y',height/2.0+150)
+	  .text(function(d) { return d; })
+	  .style('fill','white')
+	  .style('text-anchor','middle')
+	  .style('visibility','hidden')
+	  .on('mouseover',function(d){
+	      d3.select(this).style('cursor','pointer');
+	  })
+	  .on('click',function(d){
+	      d3.selectAll('circle').style('visibility','hidden');
+	      d3.selectAll('text').style('visibility','hidden');
+	      im.style('visibility','visible'); //should disable rendering
+	      call_ajax(d);
+	  });
+
+
+      function call_ajax(query){
+	  $.ajax({
+	      crossOrigin: true,
+	      url: env.ngrok_ip + '/welcome',
+	      type: "POST",
+	      data: 'name='+query,
+	      success: function(returned_data) {
+		  json_data = JSON.parse(returned_data);
+		  sorted_keys = Object.keys(json_data).sort();
+
+		  im.style('visibility','hidden'); //should disable rendering
+
+		  var x_offset=25;
+		  for (i=0; i<sorted_keys.length; i++) {
+		      var x_val = i*55+x_offset;
+		      var key = sorted_keys[i];
+		      g.append('circle')
+			  .attr("r", json_data[key]['positive'] * 50)
+			  .attr("cx",x_val)
+			  .attr("cy",height/2.0-45)
+			  .style("fill","green")
+			  .style('visibility','visible');
+
+		      g.append('circle')
+			  .attr("r", json_data[key]['negative'] * 50 * -1)
+			  .attr("cx",x_val)
+			  .attr("cy",height/2.0+45)
+				 .style("fill","red")
+			  .style('visibility','visible');
+
+		      g.append('text')
+			  .attr('x',x_val)
+			  .attr('y',height/2.0)
+			  .text(key)
+			  .style('fill','white')
+			  .style('text-anchor','middle')
+			  .style('visibility','visible');
+		  };
+		  people_text.style('visibility','visible');
+	      }
+	  });
+      }
+    </script>
+  </body>
+</html>
+
+ <!-- <div -- </div>>>

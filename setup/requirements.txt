@@ -8,3 +8,5 @@ numpy
 argparse
 six
 google-cloud-language
+flask
+flask-cors
