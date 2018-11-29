@@ -1,13 +1,13 @@
 <!DOCTYPE html>
 <html>
-  <head>
-    <script src="js/env.js"></script>
-    <script lang="javascript" src="js/jquery-3.1.0.min.js"></script>
-    <script lang="javascript" src="js/d3.v4.min.js"></script>
-    <script lang="javascript" src="js/data.js"></script>
-    <script type="text/application/javascript/json" src="js/jquery.ajax-cross-origin.min.js"></script>
-    <link rel="stylesheet" href="css/styles.css">
-  </head>
+    <head>
+	<script src="js/env.js"></script>
+	<script lang="javascript" src="js/jquery-3.1.0.min.js"></script>
+	<script lang="javascript" src="js/d3.v4.min.js"></script>
+	<script lang="javascript" src="js/data.js"></script>
+	<script type="text/application/javascript/json" src="js/jquery.ajax-cross-origin.min.js"></script>
+	<link rel="stylesheet" href="css/styles.css">
+    </head>
   <body>
     <svg width=100% height=100%></svg>
     <script>
@@ -77,9 +77,10 @@
 			     })
 			     .on('click',function(d){
 				 d3.selectAll('circle').remove(); //remove so we don't bloat
-				 d3.selectAll('text').remove();
+				 d3.selectAll('text').style('visibility','hidden');
 				 im.style('visibility','visible'); //should disable rendering
-				 call_ajax(d);	    
+				 call_ajax(d);				 
+				 d3.selectAll('text').style('visibility','visible');
 			     });
 	 return people_text;
 
@@ -130,11 +131,7 @@
 
 		     }
 		     break;
-		 }
-		 console.log("HER");
-		 var people_text = create_people_text();//.style('visibility','visible');
-		 // people_text.selectAll('text').style('visibility','visible');
-		 
+		 }	
 	     }
 	 });
      };
