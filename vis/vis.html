@@ -7,8 +7,6 @@
 	<link rel="stylesheet" href="css/styles.css">
 </head>
 <body>
-	<div>
-
 		<svg width=100% height=100%></svg>
 		<script>
 			var svg = d3.select("svg"),
@@ -16,34 +14,101 @@
 			    height = parseFloat(svg.style("height")),
 			    g = svg.append("g");
 
-			var source_sentiment = data.source_sentiment
+			var source_sentiment = data.source_sentiment;
 
-			g.selectAll("circle")
+			var center = 600;
+			var width = 200;
+
+			g.selectAll("#pos")
+			  .data(source_sentiment)
+				.enter()
+				.append("rect")
+				.attr("id", "pos")
+				.attr("x", center)
+				.attr("y", function(d, i) {
+					return i * 50 + i * 5 + 50;
+				})
+				.attr("fill", "green")
+				.attr("width", function(d) {
+					return d.pos_sentiment.salience;
+				})
+				.attr("height", 50)
+				.attr("opacity", function(d) {
+					return d.pos_sentiment.score;
+				});
+
+
+			g.selectAll("#neg")
+			  .data(source_sentiment)
+				.enter()
+				.append("rect")
+				.attr("id", "neg")
+				.attr("x", function(d) {
+					return center + (d.neg_sentiment.salience) - 2;
+				})
+				.attr("y", function(d, i) {
+					return i * 50 + i * 5 + 50;
+				})
+				.attr("fill", "red")
+				.attr("width", function(d) {
+					return (- d.neg_sentiment.salience);
+				})
+				.attr("height", 50)
+				.attr("opacity", function(d) {
+					return - d.neg_sentiment.score;
+				});
+
+/*
+			g.append("rect")
+				.attr("x", center)
+				.attr("y", 50)
+				.attr("fill", "green")
+				.attr("width", 250)
+				.attr("height", 50)
+				.attr("opacity", 0.5);
+*/
+
+			/*
+
+			var circle = g.selectAll("circle")
 			  .data(source_sentiment)
 			 	.enter()
 				.append("circle")
-
 				.attr("r", function(d) {
 					return d.sentiment.magnitude * 50
 				})
 				.attr("cx", function(d, i) {
-					return i * 100 + 50
+					return i * 150 + 50
 				})
 				.attr("cy", 100)
+				.attr("fill", function(d) {
+					if (d.sentiment.score < 0) {
+						return "red";
+					} else {
+						return "green";
+					}
+				})
+				.attr("opacity", function(d) {
+					return d.sentiment.magnitude * 1.5
+				});
+
+			g.selectAll("text")
+			  .data(source_sentiment)
+				.enter()
+				.append("text")
+				.attr("x", function(d, i) {
+					return i * 150
+				})
+				.attr("y", 200)
 				.text(function(d) {
 					return d.source.name
-				});
-				/*
-				.attr("r", 50)
-				.attr("cx", 100)
-				.attr("cy", 100)
+				})
+				.attr("font-size", "20px")
+				.attr("fill", "black")
+
 				*/
 
 
-
-			g.append()
-
 		</script>
-	</div>
 </body>
 </hsrc
