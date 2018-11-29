@@ -67,19 +67,34 @@ def hola():
             if score == 0:
                 all_values[adjusted_label]['neutral'].append(adjusted_score)
 
-
     #determine averages
     totals = {org:{label:np.mean(all_values[org][label]) for label in labels} for org in all_values.keys()}
     #impute nan values
     totals = {org:{label: totals[org][label] if not math.isnan(totals[org][label]) else 0 for label in labels} for org in all_values.keys()}
     
     print(totals)
+
+    f = open('testing_output.json','w')
+    json.dump(totals,f)
+
     #now sorted by sentiment, magnitude, score, for each news organization  
     values = json.dumps(totals)
 
+    
     return values
 
 
+@app.route("/get_saved", methods=['GET', 'POST'])
+def get_saved():
+    print('hell')
+    f = open('testing_output.json','r')
+    dict_output = json.load(f)
+    json_output = json.dumps(dict_output)
+    print('heaven')
+    print(json_output)
+    return json_output
+
+    
 if __name__ == "__main__":
     app.run() #debug=True fucking up on home pc
  
