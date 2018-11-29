@@ -8,59 +8,70 @@
     <script type="text/application/javascript/json" src="js/jquery.ajax-cross-origin.min.js"></script>
     <link rel="stylesheet" href="css/styles.css">
   </head>
-  <body>
-    
-    <div>
+  <body>             
+    <svg width=100% height=100%></svg> 
+    <script>
+      var width = $(window).width();
+      var height = $(window).height();
       
-	<svg width=100% height=100%></svg> 
-	<script>
-	 
-	 var svg = d3.select("svg")
-		     .attr('width',1000)//parseFloat(svg.style("width")),
-		     .attr('height',750); //parseFloat(svg.style("height")),
-	 
-	 var g = svg.append("g");
-
-
-	 var d = $.ajax({
-	     crossOrigin: true,
-	     url: env.ngrok_ip + '/welcome',
-	     type: "POST",
-	     data: 'name=Donald Trump',				
-	     success: function(returned_data) {
-		 json_data = JSON.parse(returned_data);
-		 sorted_keys = Object.keys(json_data).sort();
-		 console.log(sorted_keys);
-		 console.log(json_data[sorted_keys[0]]);
-		 console.log(sorted_keys.length);
-		 ivals = [Array(sorted_keys.length).keys()];
-		 console.log(ivals);
-		 var x_offset=25;
-		 for (i=0; i<sorted_keys.length; i++) {
-		     console.log(i);
-		     var x_val = i*50+x_offset;
-		     var key = sorted_keys[i];
-		     g.append('circle')
+      var svg = d3.select("svg")
+	  .attr('width','100%')
+	  .attr('height','100%');
+      
+      var background = svg.append('rect')
+	  .attr("width",'100%')
+	  .attr('height','100%')
+	  .attr('fill','black');
+      
+      var g = svg.append('g');
+      
+      //credit http://samherbert.net/svg-loaders/ for the startup image
+      var im = g.append('svg:image')
+	  .attr('xlink:href','js/svg_loading/svg-loaders/circles.svg')
+	  .attr('x','50%')
+	  .attr('y','50%')
+	  .attr('width',200)
+	  .attr('height',200);
+      
+      var d = $.ajax({
+	  crossOrigin: true,
+	  url: env.ngrok_ip + '/welcome',
+	  type: "POST",
+	  data: 'name=Donald Trump',				
+	  success: function(returned_data) {		 
+	      json_data = JSON.parse(returned_data);
+	      sorted_keys = Object.keys(json_data).sort();
+	      
+	      im.style('visibility','hidden'); //should disable rendering
+	      
+	      var x_offset=25;
+	      for (i=0; i<sorted_keys.length; i++) {
+		  console.log(i);
+		  var x_val = i*55+x_offset;
+		  var key = sorted_keys[i];
+		  g.append('circle')
 		      .attr("r", json_data[key]['positive'] * 50)
 		      .attr("cx",x_val)
-		      .attr("cy",75)
+		      .attr("cy",height/2.0-45)
 		      .style("fill","green");
-
-		     g.append('circle')
+		  
+		  g.append('circle')
 		      .attr("r", json_data[key]['negative'] * 50 * -1)
 		      .attr("cx",x_val)
-		      .attr("cy",160)
+		      .attr("cy",height/2.0+45)
 		      .style("fill","red");
-
-		     g.append('text')
+		  
+		  g.append('text')
 		      .attr('x',x_val)
-		      .attr('y',125)
+		      .attr('y',height/2.0)
 		      .text(key)
+		      .style('fill','white')
 		      .style('text-anchor','middle');		     		     		   
-		 };
-	     }
-	 });	       
-	 
-	</script>
-    </div>
-</body>
+	      };
+	    }
+      });		
+      </script>    
+  </body>
+</html>
+
+ <!-- <div -- </div>>>

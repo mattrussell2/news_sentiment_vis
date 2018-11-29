@@ -82,5 +82,5 @@ def hola():
 
 
 if __name__ == "__main__":
-    app.run(debug=True)
+    app.run() #debug=True fucking up on home pc
  
