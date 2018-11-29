@@ -75,7 +75,7 @@ def mention_rows_from_article_object(article):
         sentiment_score = entity.sentiment.score
         sentiment_magnitude = entity.sentiment.magnitude
         salience = entity.salience
-       
+
         rows.append([entity_id, name, article_title, source_id,
                      datetime_published, sentiment_score,
                      sentiment_magnitude, salience])

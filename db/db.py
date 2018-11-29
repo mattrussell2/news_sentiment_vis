@@ -9,16 +9,11 @@ from queries import *
 
 class DB:
     def __init__(self, db="news_vis"):
-        #self.db = MySQLdb.connect(host="tcp://0.tcp.ngrok.io",
-        #                          port="10326",#localhost",  # your host
-        #                          user="matt",       # username
-        #                          passwd=os.environ['DB_PW'],         # password
-        #                          db=db)             # name of the database
-        self.db = MySQLdb.connect(host="localhost",
-                             port=3306,#localhost",  # your host
-                             user="newz",       # username
-                             passwd=os.environ['DB_PW'],         # password
-                             db='news_vis')     
+        self.db = MySQLdb.connect(host="tcp://0.tcp.ngrok.io",
+                                  port="10326",#localhost",  # your host
+                                  user="matt",       # username
+                                  passwd=os.environ['DB_PW'],         # password
+                                  db=db)             # name of the database
         self.db.cursor().execute('SET GLOBAL max_allowed_packet=500*1024*1024')
         self.db.set_character_set('utf8')
         self.db.cursor().execute('SET NAMES utf8')
