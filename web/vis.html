@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html>
     <head>
-	<script src="js/env.js"></script>	
+	<script src="js/env.js"></script>
 	<script lang="javascript" src="js/jquery-3.1.0.min.js"></script>
 	<script lang="javascript" src="js/d3.v4.min.js"></script>
 	<script lang="javascript" src="js/data.js"></script>
@@ -11,33 +11,36 @@
   <body>
     <svg width=100% height=100%></svg>
     <script>
-     
+
      var width = $(window).width();
      var height = $(window).height();
-     
+
      var svg = d3.select("svg")
 		 .attr('width','100%')
 		 .attr('height','100%');
-     
+
      var background = svg.append('rect')
 			 .attr("width",'100%')
 			 .attr('height','100%')
 			 .attr('fill','black');
-	
+
      var g = svg.append('g');
-     
+
      //credit http://samherbert.net/svg-loaders/ for the startup image
+     /*
      var im = g.append('svg:image')
 	       .attr('xlink:href','js/svg_loading/svg-loaders/circles.svg')
 	       .attr('x','50%')
 	       .attr('y','50%')
 	       .attr('width',200)
 	       .attr('height',200);
-     
+         */
+
     // var d = call_ajax('Donald Trump')
-     
-     var people=['Donald Trump','Jamal Khashoggi','Lettuce'];	
-     
+
+     var people=['Donald Trump','Jamal Khashoggi','Lettuce'];
+     var entity = people[0];
+
      var people_text = d3.select('g').selectAll('text')
 			 .data(people)
 			 .enter()
@@ -54,71 +57,86 @@
 			 .on('click',function(d){
 			     d3.selectAll('circle').remove(); //remove so we don't bloat
 			     d3.selectAll('text').style('visibility','hidden');
-			     im.style('visibility','visible'); //should disable rendering
-			     //	    call_ajax(d);				 
+			     //im.style('visibility','visible'); //should disable rendering
+			     //	    call_ajax(d);
 			     d3.selectAll('text').style('visibility','visible');
 			 });
 
      //var url = 'https://www.cs.tufts.edu/~mrussell/vis/test_dataset.json'
-     d3.json('test_dataset.json',function(json){
-	 console.log('hello')
-	 console.log(json);
-       });
 
-     
-     function organize_data() {		 
-	 json_data = JSON.parse();	
-	 im.style('visibility','hidden'); //should disable rendering		  
-	 var x_offset=25;
-	 
-	 for (entity in json_data) {		    
-	     var entity_data = json_data[entity];		   
-	     var sorted_keys = Object.keys(entity_data).sort();		    
-	     
-	     for (i=0;i<sorted_keys.length;i++){
-		 var x_loc = x_offset + i * 50;
-		 g.append('rect')
-		  .attr("height", function(d) { return entity_data[sorted_keys[i]]['positive'] * 100; } )
-		  .attr('width',20)
-		  .attr("x", x_loc - 10)
-		  .attr("y", height / 2.0 - 30 - entity_data[sorted_keys[i]]['positive'] * 100)
-		  .style("fill","green")
-		  .style('visibility','visible');			 		
-		 
-		 g.append('rect')
-		  .attr("height", function(d) { return entity_data[sorted_keys[i]]['negative'] * 100 * -1; } )
-		  .attr('width',20)
-		  .attr("x", x_loc - 10)
-		  .attr("y", height / 2.0 + 20)
-		  .style("fill","red")
-		  .style('visibility','visible');			 		
-		 
-		 g.append('text')
-		  .attr('x', x_loc)
-		  .attr('y', height/2.0)
-		  .text(sorted_keys[i])
-		  .style('fill','white')
-		  .style('text-anchor','middle')
-		  .style('visibility','visible');
-		 
-	     }
-	 }
-     }
+     d3.json('test_dataset2.json',function(data){
+      	 console.log('hello')
+      	 console.log(data[entity]);
 
-/* 
+         var x_offset=25;
+
+         g.selectAll("#pos")
+           .data(data[entity])
+           .enter()
+           .append("rect")
+           .attr("id", "pos")
+           .attr("height", function(d) {
+             return d.positive * 100;
+           })
+           .attr("width", 20)
+           .attr("x", function(d, i) {
+             return x_offset + i * 50 -10;
+           })
+           .attr("y", function(d) {
+             return height / 2.0 - 30 - d.positive * 100
+           })
+           .attr("fill", "green")
+           .style("visibility","visible");
+
+         g.selectAll("#neg")
+           .data(data[entity])
+           .enter()
+           .append("rect")
+           .attr("id", "neg")
+           .attr("height", function(d) {
+             return d.negative * -100;
+           })
+           .attr("width", 20)
+           .attr("x", function(d, i) {
+             return x_offset + i * 50 -10;
+           })
+           .attr("y", function(d) {
+             return height / 2.0 + 2;
+           })
+           .attr("fill", "red")
+           .style("visibility","visible");
+
+         g.selectAll("#source-text")
+           .data(data[entity])
+           .enter()
+           .append('text')
+           .attr('x', function(d, i) {
+             return x_offset + i * 50;
+           })
+           .attr('y', height / 2.0 - 5)
+           .text(function(d) {
+             return d.source;
+           })
+           .style('fill','white')
+           .style('text-anchor','middle')
+           .style('visibility','visible');
+
+     });
+
+/*
 * function call_ajax(query){
 	    $.ajax({
 	    crossOrigin: true,
 	    url: env.ngrok_ip + '/get_saved',
 	    type: "POST",
-	    data: 'name='+query,				
+	    data: 'name='+query,
 success: organize_data()
 break;
 
 * };  */
 
-	
-    </script>    
+
+    </script>
   </body>
 </html>
 
