@@ -22,7 +22,7 @@
      var background = svg.append('rect')
 			 .attr("width",'100%')
 			 .attr('height','100%')
-			 .attr('fill','black');
+			 .attr('fill','#E1F5FE');
 
      var g = svg.append('g');
 
@@ -41,6 +41,7 @@
      var people=['Donald Trump','Jamal Khashoggi','Lettuce'];
      var entity = people[0];
      var data;
+     var green = "#11cc00";
 
      d3.json('test_dataset2.json',function(test_dataset){
          data = test_dataset;
@@ -61,7 +62,7 @@
            .attr("y", function(d) {
              return height / 2.0 - 30 - d.positive * 100
            })
-           .attr("fill", "green")
+           .attr("fill", green)
            .style("visibility","visible");
 
          g.selectAll("#neg")
@@ -90,7 +91,7 @@
            .text(function(d) {
              return d.source;
            })
-           .style('fill','white')
+           .style('fill','black')
            .style('text-anchor','middle');
 
      });
@@ -102,7 +103,7 @@
       			 .attr('x',function(d,i){ return i*250+250; })
 			 .attr('y',height/2.0+150)
 			 .text(function(d) { return d; })
-			 .style('fill','white')
+			 .style('fill','black')
 			 .style('text-anchor','middle')
 			 .style('visibility','visible')
 			 .on('mouseover',function(d){
