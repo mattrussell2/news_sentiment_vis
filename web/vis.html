@@ -40,34 +40,10 @@
 
      var people=['Donald Trump','Jamal Khashoggi','Lettuce'];
      var entity = people[0];
+     var data;
 
-     var people_text = d3.select('g').selectAll('text')
-			 .data(people)
-			 .enter()
-			 .append('text')
-      			 .attr('x',function(d,i){ return i*250+250; })
-			 .attr('y',height/2.0+150)
-			 .text(function(d) { return d; })
-			 .style('fill','white')
-			 .style('text-anchor','middle')
-			 .style('visibility','visible')
-			 .on('mouseover',function(d){
-			     d3.select(this).style('cursor','pointer');
-			 })
-			 .on('click',function(d){
-			     d3.selectAll('circle').remove(); //remove so we don't bloat
-			     d3.selectAll('text').style('visibility','hidden');
-			     //im.style('visibility','visible'); //should disable rendering
-			     //	    call_ajax(d);
-			     d3.selectAll('text').style('visibility','visible');
-			 });
-
-     //var url = 'https://www.cs.tufts.edu/~mrussell/vis/test_dataset.json'
-
-     d3.json('test_dataset2.json',function(data){
-      	 console.log('hello')
-      	 console.log(data[entity]);
-
+     d3.json('test_dataset2.json',function(test_dataset){
+         data = test_dataset;
          var x_offset=25;
 
          g.selectAll("#pos")
@@ -100,11 +76,8 @@
            .attr("x", function(d, i) {
              return x_offset + i * 50 -10;
            })
-           .attr("y", function(d) {
-             return height / 2.0 + 2;
-           })
-           .attr("fill", "red")
-           .style("visibility","visible");
+           .attr("y", height / 2.0 + 2)
+           .attr("fill", "red");
 
          g.selectAll("#source-text")
            .data(data[entity])
@@ -118,10 +91,48 @@
              return d.source;
            })
            .style('fill','white')
-           .style('text-anchor','middle')
-           .style('visibility','visible');
+           .style('text-anchor','middle');
 
      });
+
+     var people_text = d3.select('g').selectAll('text')
+			 .data(people)
+			 .enter()
+			 .append('text')
+      			 .attr('x',function(d,i){ return i*250+250; })
+			 .attr('y',height/2.0+150)
+			 .text(function(d) { return d; })
+			 .style('fill','white')
+			 .style('text-anchor','middle')
+			 .style('visibility','visible')
+			 .on('mouseover',function(d){
+			     d3.select(this).style('cursor','pointer');
+			 })
+			 .on('click',function(name){
+           console.log(name);
+			     d3.selectAll('circle').remove(); //remove so we don't bloat
+			     d3.selectAll('text').style('visibility','hidden');
+			     //im.style('visibility','visible'); //should disable rendering
+			     //	    call_ajax(d);
+			     d3.selectAll('text').style('visibility','visible');
+
+           d3.selectAll("#pos")
+             .data(data[name])
+             .attr("height", function(d) {
+               return d.positive * 100;
+             })
+             .attr("y", function(d) {
+               return height / 2.0 - 30 - d.positive * 100
+             });
+
+           d3.selectAll("#neg")
+             .data(data[name])
+             .attr("height", function(d) {
+               return d.negative * -100;
+             });
+			 });
+
+     //var url = 'https://www.cs.tufts.edu/~mrussell/vis/test_dataset.json'
 
 /*
 * function call_ajax(query){
