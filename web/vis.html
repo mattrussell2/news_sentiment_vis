@@ -119,7 +119,7 @@
 
            d3.selectAll("#pos")
              .data(data[name])
-             .attr("height", function(d) {
+             .transition().attr("height", function(d) {
                return d.positive * 100;
              })
              .attr("y", function(d) {
@@ -128,7 +128,7 @@
 
            d3.selectAll("#neg")
              .data(data[name])
-             .attr("height", function(d) {
+             .transition().attr("height", function(d) {
                return d.negative * -100;
              });
 			 });
