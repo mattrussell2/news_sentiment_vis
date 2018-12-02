@@ -26,126 +26,148 @@
 
      var g = svg.append('g');
 
+     var sidebar = g.append("rect")
+		    .attr("height","100%")
+		    .attr("width","20%")
+		    .attr("x", width*.8)
+		    .attr('fill','blue')
+
      //credit http://samherbert.net/svg-loaders/ for the startup image
      /*
-     var im = g.append('svg:image')
-	       .attr('xlink:href','js/svg_loading/svg-loaders/circles.svg')
-	       .attr('x','50%')
-	       .attr('y','50%')
-	       .attr('width',200)
-	       .attr('height',200);
-         */
+	var im = g.append('svg:image')
+	.attr('xlink:href','js/svg_loading/svg-loaders/circles.svg')
+	.attr('x','50%')
+	.attr('y','50%')
+	.attr('width',200)
+	.attr('height',200);
+      */
 
-    // var d = call_ajax('Donald Trump')
+     // var d = call_ajax('Donald Trump')
 
-     var people=['Donald Trump','Jamal Khashoggi','Lettuce'];
-     var entity = people[0];
+     var entities=['Donald Trump','Jamal Khashoggi','Lettuce'];     
+     var entity = entities[0];
+
+     var entity_images=['donald_trump.jpg','jamal_khashoggi.jpg','romaine.jpg'];
+     
      var data;
      var green = "#11cc00";
 
+     //establish top entities
+     var top_entities = g.selectAll(".entity-image")
+			 .data(entity_images)
+			 .enter().append("g")
+			 .attr("class","entity-image");
+
+     //inside each top entity object, append an image
+     top_entities.append("image")
+		 .attr("id",function(d) { return d; })
+		 .attr("xlink:href", function(d) { return  "images/"+d; })
+		 .attr("width",width*.1)
+		 .attr("height","150px")
+		 .attr("x",function(d,i) { return width*.11*i+15; })
+		 .attr("y",function(d,i) { return height*.05; })
+		 .on("mouseover", function(d) {
+		     d3.select(this).style("cursor","pointer");
+		 })
+		 .on("click", function(d,i) {
+		     var name = entities[i]
+		     d3.selectAll('text').style('visibility','hidden');
+		     d3.selectAll('text').style('visibility','visible');
+		     
+		     d3.selectAll(".pos")
+		       .data(data[name])
+		       .transition().attr("height", function(d) {
+			   return d.positive * 100;
+		       })
+		       .attr("y", function(d) {
+			   return height / 2.0 - 30 - d.positive * 100
+		       });
+		     
+		     d3.selectAll(".neg")
+		       .data(data[name])
+		       .transition().attr("height", function(d) {
+			   return d.negative * -100;
+		       });
+		 });
+
+     //inside each top entity object, append the name
+     top_entities.append("text")
+     //this x coordinate should technically end in +75, but in practice it was off-center
+		 .attr("x",function(d,i) { return width*.11*i+15+71; })
+		 .attr("y",function(d,i) { return height*.05; })
+		 .text(function(d,i) { console.log(entities[i].length); return entities[i]; })
+		 .style('fill','black')
+		 .style('text-anchor','middle')
+		 .style('visibility','visible');
+     
+     
      d3.json('test_dataset2.json',function(test_dataset){
          data = test_dataset;
-         var x_offset=25;
+	 var x_offset = width*.1;
 
-         g.selectAll("#pos")
-           .data(data[entity])
-           .enter()
-           .append("rect")
-           .attr("id", "pos")
-           .attr("height", function(d) {
-             return d.positive * 100;
-           })
-           .attr("width", 20)
-           .attr("x", function(d, i) {
-             return x_offset + i * 50 -10;
-           })
-           .attr("y", function(d) {
-             return height / 2.0 - 30 - d.positive * 100
-           })
-           .attr("fill", green)
-           .style("visibility","visible");
+         g.selectAll(".pos")
+          .data(data[entity])
+          .enter()
+          .append("rect")
+          .attr("class", "pos")
+          .attr("height", function(d) {
+              return d.positive * 100;
+          })
+          .attr("width", 20)
+          .attr("x", function(d, i) {
+              return x_offset + i * 50 -10;
+          })
+          .attr("y", function(d) {
+              return height / 2.0 - 30 - d.positive * 100
+          })
+          .attr("fill", green)
+          .style("visibility","visible");
 
-         g.selectAll("#neg")
-           .data(data[entity])
-           .enter()
-           .append("rect")
-           .attr("id", "neg")
-           .attr("height", function(d) {
-             return d.negative * -100;
-           })
-           .attr("width", 20)
-           .attr("x", function(d, i) {
-             return x_offset + i * 50 -10;
-           })
-           .attr("y", height / 2.0 + 2)
-           .attr("fill", "red");
+         g.selectAll(".neg")
+          .data(data[entity])
+          .enter()
+          .append("rect")
+          .attr("class", "neg")
+          .attr("height", function(d) {
+              return d.negative * -100;
+          })
+          .attr("width", 20)
+          .attr("x", function(d, i) {
+              return x_offset + i * 50 -10;
+          })
+          .attr("y", height / 2.0 + 2)
+          .attr("fill", "red");
 
-         g.selectAll("#source-text")
-           .data(data[entity])
-           .enter()
-           .append('text')
-           .attr('x', function(d, i) {
-             return x_offset + i * 50;
-           })
-           .attr('y', height / 2.0 - 5)
-           .text(function(d) {
-             return d.source;
-           })
-           .style('fill','black')
-           .style('text-anchor','middle');
-
+         g.selectAll(".source-text")
+          .data(data[entity])
+          .enter()
+          .append('text')
+          .attr('x', function(d, i) {
+              return x_offset + i * 50;
+          })
+          .attr('y', height / 2.0 - 5)
+          .text(function(d) {
+              return d.source;
+          })
+          .style('fill','black')
+          .style('text-anchor','middle');
+	 
      });
 
-     var people_text = d3.select('g').selectAll('text')
-			 .data(people)
-			 .enter()
-			 .append('text')
-      			 .attr('x',function(d,i){ return i*250+250; })
-			 .attr('y',height/2.0+150)
-			 .text(function(d) { return d; })
-			 .style('fill','black')
-			 .style('text-anchor','middle')
-			 .style('visibility','visible')
-			 .on('mouseover',function(d){
-			     d3.select(this).style('cursor','pointer');
-			 })
-			 .on('click',function(name){
-           console.log(name);
-			     d3.selectAll('circle').remove(); //remove so we don't bloat
-			     d3.selectAll('text').style('visibility','hidden');
-			     //im.style('visibility','visible'); //should disable rendering
-			     //	    call_ajax(d);
-			     d3.selectAll('text').style('visibility','visible');
-
-           d3.selectAll("#pos")
-             .data(data[name])
-             .transition().attr("height", function(d) {
-               return d.positive * 100;
-             })
-             .attr("y", function(d) {
-               return height / 2.0 - 30 - d.positive * 100
-             });
-
-           d3.selectAll("#neg")
-             .data(data[name])
-             .transition().attr("height", function(d) {
-               return d.negative * -100;
-             });
-			 });
-
+     
      //var url = 'https://www.cs.tufts.edu/~mrussell/vis/test_dataset.json'
 
-/*
-* function call_ajax(query){
-	    $.ajax({
-	    crossOrigin: true,
-	    url: env.ngrok_ip + '/get_saved',
-	    type: "POST",
-	    data: 'name='+query,
-success: organize_data()
-break;
+     /*
+      * function call_ajax(query){
+	$.ajax({
+	crossOrigin: true,
+	url: env.ngrok_ip + '/get_saved',
+	type: "POST",
+	data: 'name='+query,
+	success: organize_data()
+	break;
 
-* };  */
+      * };  */
 
 
     </script>
