@@ -5,7 +5,9 @@
 	<script lang="javascript" src="js/jquery-3.1.0.min.js"></script>
 	<script lang="javascript" src="js/d3.v4.min.js"></script>
 	<script lang="javascript" src="js/data.js"></script>
+	<script lang="javascript" src="js/slider.js"</script>
 	<script type="text/application/javascript/json" src="js/jquery.ajax-cross-origin.min.js"></script>
+	<link rel="stylesheet" type="text/css" href="css/slider.css">
 	<link rel="stylesheet" href="css/styles.css">
   </head>
   <body>
@@ -92,13 +94,26 @@
 
      //inside each top entity object, append the name
      top_entities.append("text")
-     //this x coordinate should technically end in +75, but in practice it was off-center
-		 .attr("x",function(d,i) { return width*.11*i+15+71; })
+		 .attr("x",function(d,i) { return width*.11*i+15+width*.1/2; })
 		 .attr("y",function(d,i) { return height*.05; })
 		 .text(function(d,i) { console.log(entities[i].length); return entities[i]; })
 		 .style('fill','black')
 		 .style('text-anchor','middle')
 		 .style('visibility','visible');
+
+
+     function test(min,max){
+	 console.log(min);
+     }
+
+     var color = d3.scaleOrdinal(d3.schemeCategory20);
+     for(var i=0;i<11;i++){
+	 color(i);
+     }
+     
+     setupSlider(14,22,test,color);
+     test(14,22);
+     
      
      
      d3.json('test_dataset2.json',function(test_dataset){
