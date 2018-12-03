@@ -38,7 +38,7 @@
 
     // var d = call_ajax('Donald Trump')
 
-     var people=['Donald Trump','Jamal Khashoggi','Lettuce'];
+     var people = ['Donald Trump','Jamal Khashoggi','Lettuce'];
      var entity = people[0];
      var data;
      var green = "#11cc00";
@@ -47,11 +47,11 @@
          data = test_dataset;
          var x_offset=25;
 
-         g.selectAll("#pos")
+         g.selectAll(".pos")
            .data(data[entity])
            .enter()
            .append("rect")
-           .attr("id", "pos")
+           .attr("class", "pos")
            .attr("height", function(d) {
              return d.positive * 100;
            })
@@ -65,11 +65,11 @@
            .attr("fill", green)
            .style("visibility","visible");
 
-         g.selectAll("#neg")
+         g.selectAll(".neg")
            .data(data[entity])
            .enter()
            .append("rect")
-           .attr("id", "neg")
+           .attr("class", "neg")
            .attr("height", function(d) {
              return d.negative * -100;
            })
@@ -117,7 +117,7 @@
 			     //	    call_ajax(d);
 			     d3.selectAll('text').style('visibility','visible');
 
-           d3.selectAll("#pos")
+           d3.selectAll(".pos")
              .data(data[name])
              .transition().attr("height", function(d) {
                return d.positive * 100;
@@ -126,7 +126,7 @@
                return height / 2.0 - 30 - d.positive * 100
              });
 
-           d3.selectAll("#neg")
+           d3.selectAll(".neg")
              .data(data[name])
              .transition().attr("height", function(d) {
                return d.negative * -100;

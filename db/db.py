@@ -8,12 +8,17 @@ import MySQLdb
 from queries import *
 
 class DB:
-    def __init__(self, db="news_vis"):
-        self.db = MySQLdb.connect(host="tcp://0.tcp.ngrok.io",
-                                  port="10326",#localhost",  # your host
-                                  user="matt",       # username
-                                  passwd=os.environ['DB_PW'],         # password
-                                  db=db)             # name of the database
+    def __init__(self, db="news_vis", local=False):
+        if local:
+            self.db = MySQLdb.connect(host="localhost",
+                                      user="root",
+                                      db=db)
+        else:
+            self.db = MySQLdb.connect(host="tcp://0.tcp.ngrok.io",
+                                      port="10326",
+                                      user="matt",
+                                      passwd=os.environ['DB_PW'],
+                                      db=db)
         self.db.cursor().execute('SET GLOBAL max_allowed_packet=500*1024*1024')
         self.db.set_character_set('utf8')
         self.db.cursor().execute('SET NAMES utf8')
@@ -113,8 +118,91 @@ class DB:
         self.db.cursor().executemany(INSERT_MENTIONS, mention_tuples)
         self.db.commit()
 
-# Tests
-db = DB()
+    def get_top_entities(self, count):
+        cur = self.db.cursor()
+        cur.execute(GET_TOP_MENTIONS_COUNT_ALL.format(count))
+        result = [{"entity_id": row[0],
+                   "name": row[1],
+                   "count": row[2]} for row in cur.fetchall()]
+        return result
+
+    def get_sources(self):
+        cur = self.db.cursor()
+        cur.execute(GET_SOURCES)
+        result = [{"source_id": row[0],
+                 "name": row[1]} for row in cur.fetchall()]
+        return result
+
+    def get_entity_sentiment(self, entities, sources):
+        """
+        {"Trump" :
+            {"total_info" : [
+                    {"source" : "",
+                     "positive" : {
+                        "sentiment" : 1,
+                        "count" : 1
+                     },
+                     "neutral" : {
+                        "sentiment" : 1,
+                        "count" : 1
+                     },
+                     "negative" : {
+                        "sentiment" : 1,
+                        "count" : 1
+                     },
+                     "mentioned_with" : [],
+                     "article_count" : 1,
+                     "article_total" : 1
+                    }
+                ],
+                "date_info" : []
+            }
+        }
+        """
+        result = {}
+        cur = self.db.cursor()
+        for entity in entities:
+            name = entity["name"]
+            entity_id = entity["entity_id"]
+            result[name] = {"total_info" : [],
+                            "date_info" : []}
+            for source in sources:
+                source_id = source["source_id"]
+                object = {"source" : {"source_id" : source_id,
+                                      "name" : source["name"]}}
+
+                cur.execute(POS_SENTIMENT_BY_SOURCE_AND_ENTITY.format(entity_id, source_id))
+                row = cur.fetchall()[0]
+                print("pos_row")
+                print(row)
+                object["positive"] = {"sentiment" : row[0] * row[1] if row[0] and row[1] else 0,
+                                      "count" : row[2]}
+                #print(row[0] * row[1])
+                print(object["positive"]["sentiment"])
+
+                cur.execute(NEG_SENTIMENT_BY_SOURCE_AND_ENTITY.format(entity_id, source_id))
+                row = cur.fetchall()[0]
+                object["negative"] = {"sentiment" : row[0] * row[1] if row[0] and row[1] else 0,
+                                      "count" : row[2]}
+
+                cur.execute(NEUTRAL_SENTIMENT_BY_SOURCE_AND_ENTITY.format(entity_id, source_id))
+                row = cur.fetchall()[0]
+                object["neutral"] = {"sentiment" : row[0],
+                                      "count" : row[1]}
+
+                cur.execute(GET_TOP_MENTIONED_WITH_COUNT.format(entity_id, source_id, 10))
+                object["mentioned_with"] = []
+                for row in cur.fetchall():
+                    object["mentioned_with"].append({"entity_id" : row[0], "name": row[1]})
+
+                object["article_count"] = object["positive"]["count"] + object["negative"]["count"] + object["neutral"]["count"]
+
+                cur.execute(GET_TOTAL_ARTICLES_FROM_SOURCE.format(source_id))
+                object["article_total"] = cur.fetchall()[0]
+
+                result[name]["total_info"].append(object)
+
+        return result
 
 
 """

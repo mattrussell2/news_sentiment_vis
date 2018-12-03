@@ -46,12 +46,11 @@ set name = %s,
 where entity_id = %s
 '''
 
-GET_TOP_MENTIONS_COUNT = '''
+GET_TOP_MENTIONS_COUNT_ALL = '''
 select m.entity_id, e.name, count(m.entity_id)
 from mention m join entity e on (m.entity_id = e.entity_id)
     join favorite_sources s on (m.source_id = s.source_id)
-where m.datetime_published > '{}'
-  and m.entity_id != e.name
+where m.entity_id != e.name
 group by m.entity_id
 order by count(m.entity_id) desc
 limit {}
@@ -75,9 +74,8 @@ from mention m1 join mention m2
       and m1.source_id = m2.source_id
       and m1.datetime_published = m2.datetime_published)
   join entity e on (m1.entity_id = e.entity_id)
-  join favorite_sources s on (m1.source_id = s.source_id)
 where m2.entity_id = '{}' and m1.entity_id != m2.entity_id
-      and m1.datetime_published > '{}'
+  and m1.source_id = '{}' and m1.source_id = m2.source_id
 group by m1.entity_id
 order by count(m1.entity_id) desc
 limit {}
@@ -117,8 +115,8 @@ where m.article_title = '{}' and m.source_id = '{}'
 order by m.salience desc
 '''
 
-GET_SOURCE_IDS = '''
-select source_id from source where category = 'general' or category = 'business'
+GET_SOURCES = '''
+select source_id, name from source
 '''
 
 TOP_ENTITIES_BY_SOURCE = '''
@@ -230,3 +228,30 @@ create or replace view favorite_sources
       or source_id = 'the-washington-post'
       or source_id = 'usa-today'
 '''
+
+POS_SENTIMENT_BY_SOURCE_AND_ENTITY = """
+select avg(sentiment_score), avg(sentiment_magnitude), count(*)
+from mention
+where entity_id = '{}' and source_id = '{}' and sentiment_score > 0
+"""
+"""
+select avg(sentiment_score), avg(sentiment_magnitude), count(*)
+from mention
+where entity_id = '/m/0cqt90' and source_id = 'cnn' and sentiment_score > 0
+"""
+
+NEG_SENTIMENT_BY_SOURCE_AND_ENTITY = """
+select avg(sentiment_score), avg(sentiment_magnitude), count(*)
+from mention
+where entity_id = '{}' and source_id = '{}' and sentiment_score < 0
+"""
+
+NEUTRAL_SENTIMENT_BY_SOURCE_AND_ENTITY = """
+select avg(sentiment_magnitude), count(*)
+from mention
+where entity_id = '{}' and source_id = '{}' and sentiment_score = 0
+"""
+
+GET_TOTAL_ARTICLES_FROM_SOURCE = """
+select count(*) from article where source_id = '{}'
+"""
