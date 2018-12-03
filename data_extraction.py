@@ -41,6 +41,7 @@ def dump_entity_sentiment():
     entities = json.load(open("top_entities.json", "r"))
 
     db = DB(local=True)
-    json.dump(db.get_entity_sentiment(entities, sources), open("dataset.json", "w"))
+    json.dump(db.get_entity_sentiment_with_time(entities, sources), open("dataset_with_time.json", "w"))
 
+dump_top_entities()
 dump_entity_sentiment()

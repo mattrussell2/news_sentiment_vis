@@ -9,12 +9,14 @@
 	<script type="text/application/javascript/json" src="js/jquery.ajax-cross-origin.min.js"></script>
 
 	<!-- daterangepicker from : http://www.daterangepicker.com/ -->
-	<Script type="text/javascript" src="https://cdn.jsdelivr.net/momentjs/latest/moment.min.js"></script>
+	<script type="text/javascript" src="https://cdn.jsdelivr.net/momentjs/latest/moment.min.js"></script>
 	<script type="text/javascript" src="https://cdn.jsdelivr.net/npm/daterangepicker/daterangepicker.min.js"></script>
 	<link rel="stylesheet" type="text/css" href="https://cdn.jsdelivr.net/npm/daterangepicker/daterangepicker.css" />
 
-    </head>
+	<script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
 
+
+    </head>
     <body>
 
 	<input type="text" name="daterange" value="01/01/2018 - 01/15/2018" />
@@ -88,7 +90,7 @@
 		return d.positive.sentiment * d.positive.count;
 	    })
 	    .attr("y", function(d) {
-		return height / 2.0 - 30 - d.positive.sentiment * d.positive.count;
+		return height * .4 - 30 - d.positive.sentiment * d.positive.count;
 	    });
 	
 	d3.selectAll(".neg")
@@ -115,10 +117,11 @@
     .style('fill','black')
     .style('text-anchor','middle');    
 	  
-	  d3.json('dataset.json',function(dataset){
-              data = dataset;	      
+	  d3.json('dataset_with_time.json',function(dataset){
+              data = dataset;
+	      console.log(data);
               var x_offset=25;
-	      
+	      console.log(data);
               g.selectAll(".pos")
 		  .data(data["Donald Trump"].total_info)
 		  .enter()
@@ -132,7 +135,7 @@
 		      return x_offset + i * 50 -10;
 		  })
 		  .attr("y", function(d) {
-		      return height / 2.0 - 30 - d.positive.sentiment * d.positive.count;
+		      return height * .4 - 30 - d.positive.sentiment * d.positive.count;
 		  })
 		  .attr("fill", green);
               g.selectAll(".neg")
@@ -147,7 +150,7 @@
 		  .attr("x", function(d, i) {
 		      return x_offset + i * 50 -10;
 		  })
-		  .attr("y", height / 2.0 + 2)
+		  .attr("y", height * .4 + 2)
 		  .attr("fill", "red");
 	      
               g.selectAll("#polarized-source-text")
@@ -157,7 +160,7 @@
 		  .attr('x', function(d, i) {
 		      return x_offset + i * 50;
 		  })
-		  .attr('y', height / 2.0 - 5)
+		  .attr('y', height * .4 - 5)
 		  .text(function(d,i) {
 		      return short_labels[i];//d.source.source_id;
 		  })

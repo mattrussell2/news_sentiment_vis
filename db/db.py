@@ -11,8 +11,12 @@ class DB:
     def __init__(self, db="news_vis", local=False):
         if local:
             self.db = MySQLdb.connect(host="localhost",
-                                      user="root",
-                                      db=db)
+                                      user='newz',
+                                      passwd=os.environ['DB_PW'],
+                                      db=db
+                                      # user="root",
+                                      # db=db
+            )
         else:
             self.db = MySQLdb.connect(host="tcp://0.tcp.ngrok.io",
                                       port="10326",
@@ -204,6 +208,146 @@ class DB:
 
         return result
 
+
+
+    def non_time_entity_sentiment_one_source_one_id(self,entity_id,source,cur):       
+        source_id = source["source_id"]
+        object = {"source" : {"source_id" : source_id,
+                              "name" : source["name"]}}
+        
+        cur.execute(POS_SENTIMENT_BY_SOURCE_AND_ENTITY.format(entity_id, source_id))
+        row = cur.fetchall()[0]
+        print("pos_row")
+        print(row)
+        object["positive"] = {"sentiment" : row[0] * row[1] if row[0] and row[1] else 0,
+                              "count" : row[2]}
+        #print(row[0] * row[1])
+        print(object["positive"]["sentiment"])
+        
+        cur.execute(NEG_SENTIMENT_BY_SOURCE_AND_ENTITY.format(entity_id, source_id))
+        row = cur.fetchall()[0]
+        object["negative"] = {"sentiment" : row[0] * row[1] if row[0] and row[1] else 0,
+                              "count" : row[2]}
+        
+        cur.execute(NEUTRAL_SENTIMENT_BY_SOURCE_AND_ENTITY.format(entity_id, source_id))
+        row = cur.fetchall()[0]
+        object["neutral"] = {"sentiment" : row[0],
+                             "count" : row[1]}
+        
+        cur.execute(GET_TOP_MENTIONED_WITH_COUNT.format(entity_id, source_id, 10))
+        object["mentioned_with"] = []
+        for row in cur.fetchall():
+            object["mentioned_with"].append({"entity_id" : row[0], "name": row[1]})
+            
+        object["article_count"] = object["positive"]["count"] + object["negative"]["count"] + object["neutral"]["count"]
+        
+        cur.execute(GET_TOTAL_ARTICLES_FROM_SOURCE.format(source_id))
+        object["article_total"] = cur.fetchall()[0]
+            
+        return object
+    
+    def get_entity_sentiment_with_time(self, entities, sources):
+        """
+        {"Trump" :
+            {"total_info" : [
+                    {"source" : "",
+                     "positive" : {
+                        "sentiment" : 1,
+                        "count" : 1
+                     },
+                     "neutral" : {
+                        "sentiment" : 1,
+                        "count" : 1
+                     },
+                     "negative" : {
+                        "sentiment" : 1,
+                        "count" : 1
+                     },
+                     "mentioned_with" : [],
+                     "article_count" : 1,
+                     "article_total" : 1
+                    }
+                ],
+                "date_info" : [ {date: 2018_11_14:},
+                                {"source" : "",
+                                 "positive" : {
+                                    "sentiment" : 1,
+                                    "count" : 1
+                                },
+                                "neutral" : {
+                                    "sentiment" : 1,
+                                    "count" : 1
+                                },
+                                "negative" : {
+                                    "sentiment" : 1,
+                                    "count" : 1
+                                },
+                                "mentioned_with" : [],
+                                "article_count" : 1,
+                                "article_total" : 1
+                                }
+                              ]
+            }
+        }
+        """
+        result = {}
+        cur = self.db.cursor()
+        for entity in entities:
+            name = entity["name"]
+            entity_id = entity["entity_id"]
+            result[name] = {"total_info" : [],
+                            "date_info" : []}
+
+            #first deal with total info
+            for source in sources:
+                result[name]['total_info'].append(self.non_time_entity_sentiment_one_source_one_id(entity_id,source,cur))
+
+            #now deal with date version
+            dates = ['2018-11-'+ str(x) for x in range(14,23)]            
+            for date,i in zip(dates,range(len(dates))):
+
+                result[name]['date_info'].append({'date': date, 'daily_info':[]})
+                
+                for source in sources:
+                    source_id = source["source_id"]
+                    object = {"source" : {"source_id" : source_id,
+                                          "name" : source["name"]}}
+                    
+                    cur.execute(POS_SENTIMENT_BY_SOURCE_AND_ENTITY_AND_DATE.format(entity_id, source_id,date))
+                    row = cur.fetchall()[0]
+                    print("pos_row")
+                    print(row)
+                    object["positive"] = {"sentiment" : row[0] * row[1] if row[0] and row[1] else 0,
+                                        "count" : row[2]}
+                    #print(row[0] * row[1])
+                    print(object["positive"]["sentiment"])
+                    
+                    cur.execute(NEG_SENTIMENT_BY_SOURCE_AND_ENTITY_AND_DATE.format(entity_id, source_id,date))
+                    row = cur.fetchall()[0]
+                    object["negative"] = {"sentiment" : row[0] * row[1] if row[0] and row[1] else 0,
+                                          "count" : row[2]}
+                    
+                    cur.execute(NEUTRAL_SENTIMENT_BY_SOURCE_AND_ENTITY_AND_DATE.format(entity_id, source_id,date))
+                    row = cur.fetchall()[0]
+                    object["neutral"] = {"sentiment" : row[0],
+                                         "count" : row[1]}
+                    
+                    cur.execute(GET_TOP_MENTIONED_WITH_COUNT_AND_DATE.format(entity_id, source_id, date, 10))
+                    object["mentioned_with"] = []
+                    for row in cur.fetchall():
+                        object["mentioned_with"].append({"entity_id" : row[0], "name": row[1]})
+                        
+                    object["article_count"] = object["positive"]["count"] + object["negative"]["count"] + object["neutral"]["count"]
+                    
+                    cur.execute(GET_TOTAL_ARTICLES_FROM_SOURCE_BY_DATE.format(source_id,date))
+                    object["article_total"] = cur.fetchall()[0]
+                    
+                    result[name]['date_info'][i]['daily_info'].append(object)                  
+                   
+        return result
+
+
+    
 
 """
 db = DB(db="test")

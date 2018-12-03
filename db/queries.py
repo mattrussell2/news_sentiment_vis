@@ -240,6 +240,8 @@ from mention
 where entity_id = '/m/0cqt90' and source_id = 'cnn' and sentiment_score > 0
 """
 
+#should the above few lines be here?
+
 NEG_SENTIMENT_BY_SOURCE_AND_ENTITY = """
 select avg(sentiment_score), avg(sentiment_magnitude), count(*)
 from mention
@@ -254,4 +256,44 @@ where entity_id = '{}' and source_id = '{}' and sentiment_score = 0
 
 GET_TOTAL_ARTICLES_FROM_SOURCE = """
 select count(*) from article where source_id = '{}'
+"""
+
+#BELOW WITH TIME INCLUDED
+POS_SENTIMENT_BY_SOURCE_AND_ENTITY_AND_DATE = """
+select avg(sentiment_score), avg(sentiment_magnitude), count(*)
+from mention
+where entity_id = '{}' and source_id = '{}' and sentiment_score > 0 and DATE(datetime_published) = '{}'
+"""
+
+NEG_SENTIMENT_BY_SOURCE_AND_ENTITY_AND_DATE = """
+select avg(sentiment_score), avg(sentiment_magnitude), count(*)
+from mention
+where entity_id = '{}' and source_id = '{}' and sentiment_score < 0 and DATE(datetime_published) = '{}'
+"""
+
+NEUTRAL_SENTIMENT_BY_SOURCE_AND_ENTITY_AND_DATE = """
+select avg(sentiment_magnitude), count(*)
+from mention
+where entity_id = '{}' and source_id = '{}' and sentiment_score = 0 and DATE(datetime_published) = '{}'
+"""
+
+
+GET_TOP_MENTIONED_WITH_COUNT_AND_DATE = '''
+select m1.entity_id, e.name, count(m1.entity_id)
+from mention m1 join mention m2
+  on (m1.article_title = m2.article_title
+      and m1.source_id = m2.source_id)
+  join entity e on (m1.entity_id = e.entity_id)
+where m2.entity_id = '{}' and m1.entity_id != m2.entity_id
+  and m1.source_id = '{}' and m1.source_id = m2.source_id
+  and DATE(m1.datetime_published) = '{}'
+group by m1.entity_id
+order by count(m1.entity_id) desc
+limit {}
+'''
+# and m1.datetime_published = m2.datetime_published)
+
+
+GET_TOTAL_ARTICLES_FROM_SOURCE_BY_DATE = """
+select count(*) from article where source_id = '{}' and datetime_published = '{}'
 """

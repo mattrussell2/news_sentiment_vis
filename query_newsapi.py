@@ -113,6 +113,11 @@ def get_news_urls():
     return
 
 
+from apscheduler.schedulers.blocking import BlockingScheduler
+
+scheduler = BlockingScheduler(timezone="EST")
+scheduler.add_job(get_news_urls,'interval',hours=7)
+scheduler.start()
 # #below is only for AP, which needs to be broken down by 2 calls/day b/c so many articles
 # def get_news_urls_associated_press():   
 #     sources = ['associated-press']
