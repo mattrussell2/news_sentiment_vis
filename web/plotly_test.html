@@ -36,7 +36,7 @@
       var data;     
       d3.json('dataset.json',function(dataset){
 	  data = dataset;
-	  var x_offset = 250;
+	  var x_offset = width/20; //250;
 	  g.selectAll(".polarized-source-text")
 	      .data(data["Donald Trump"].total_info)
 	      .enter()
