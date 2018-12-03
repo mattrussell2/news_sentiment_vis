@@ -1,0 +1,40 @@
+<html>
+  <head>
+    <script lang="javascript" src="js/jquery-3.1.0.min.js"></script>
+    <script lang="javascript" src="js/d3.v4.min.js"></script>
+    <script src="js/plotly.js"></script>
+  </head>
+  <body>
+    <div id="tester" style="width:600px;height:250px;"></div>
+    
+    <script>
+      var y=[];
+      d3.json('dataset_with_time.json',function(dataset){
+	  data=dataset
+	  for (var day in data['Donald Trump'].date_info){     	      
+	      y.push(data['Donald Trump'].date_info[day]['daily_info'][0]); //0th index is abc news
+	  }
+   
+      var y_neg=[];
+      var y_pos=[];
+      var y_neu=[];
+         
+      for (var day in y){
+	  y_neg.push(y[day]['negative'].count * y[day]['negative'].sentiment);
+	  y_pos.push(y[day]['positive'].count * y[day]['positive'].sentiment);
+	  y_neu.push(y[day]['neutral'].count * y[day]['neutral'].sentiment);
+      }
+         
+      var x = [14,15,16,17,18,19,20,21,22]
+
+      TESTER = document.getElementById('tester');
+      Plotly.plot( TESTER, [{
+	  x: x,
+	  y: y_neg,}], {title: 'ABC news over the week for Trump'})
+	     
+	 
+          });
+     
+      </script>
+  </body>
+</html>
