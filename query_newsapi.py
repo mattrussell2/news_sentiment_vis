@@ -23,7 +23,7 @@ def get_news_urls():
     sources = ['abc-news','bbc-news','breitbart-news','business-insider','buzzfeed','cbc-news','cbs-news','cnbc','cnn','financial-times','fox-news','msnbc','nbc-news','politico','the-economist','the-huffington-post','the-new-york-times','the-wall-street-journal','the-washington-post','usa-today']
 
     #set the date range
-    dates = [str(x) for x in range(30) if x > 0 and x < 26] 
+    dates = [str(x) for x in range(30) if x > 0 and x < 30] 
 
     #basic base url info for newsapi calls
     base_url = 'https://newsapi.org/v2/everything?'
