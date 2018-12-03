@@ -1,17 +1,37 @@
 <!DOCTYPE html>
 <html>
     <head>
+	<link rel="stylesheet" href="css/styles.css">
 	<script src="js/env.js"></script>
 	<script lang="javascript" src="js/jquery-3.1.0.min.js"></script>
 	<script lang="javascript" src="js/d3.v4.min.js"></script>
 	<script lang="javascript" src="js/data.js"></script>
 	<script type="text/application/javascript/json" src="js/jquery.ajax-cross-origin.min.js"></script>
-	<link rel="stylesheet" href="css/styles.css">
-  </head>
-  <body>
-    <svg width=100% height=100%></svg>
-    <script>
 
+	<!-- daterangepicker from : http://www.daterangepicker.com/ -->
+	<Script type="text/javascript" src="https://cdn.jsdelivr.net/momentjs/latest/moment.min.js"></script>
+	<script type="text/javascript" src="https://cdn.jsdelivr.net/npm/daterangepicker/daterangepicker.min.js"></script>
+	<link rel="stylesheet" type="text/css" href="https://cdn.jsdelivr.net/npm/daterangepicker/daterangepicker.css" />
+
+
+
+    </head>
+
+    <body>
+
+	<input type="text" name="daterange" value="01/01/2018 - 01/15/2018" />
+
+	<script>
+	    $(function() {
+	    $('input[name="daterange"]').daterangepicker({
+	    opens: 'left'
+	    }, function(start, end, label) {
+	    console.log("A new date selection was made: " + start.format('YYYY-MM-DD') + ' to ' + end.format('YYYY-MM-DD'));
+	    });
+	    });
+	</script>
+	<svg width=100% height=100%></svg>
+	<script>
      var width = $(window).width();
      var height = $(window).height();
 
@@ -26,25 +46,86 @@
 
      var g = svg.append('g');
 
+     var sidebar = g.append("rect")
+		    .attr("height","100%")
+		    .attr("width","20%")
+		    .attr("x", width*.8)
+		    .attr('fill','blue');
+
+    // var slider = d3.select('#slider1').call(d3.slider());
+
+
      //credit http://samherbert.net/svg-loaders/ for the startup image
      /*
-     var im = g.append('svg:image')
-	       .attr('xlink:href','js/svg_loading/svg-loaders/circles.svg')
-	       .attr('x','50%')
-	       .attr('y','50%')
-	       .attr('width',200)
-	       .attr('height',200);
-         */
+	var im = g.append('svg:image')
+	.attr('xlink:href','js/svg_loading/svg-loaders/circles.svg')
+	.attr('x','50%')
+	.attr('y','50%')
+	.attr('width',200)
+	.attr('height',200);
+      */
 
-    // var d = call_ajax('Donald Trump')
+     // var d = call_ajax('Donald Trump')
 
-     var people = ['Donald Trump','Jamal Khashoggi','Lettuce'];
-     var entity = people[0];
+     var entities=['Donald Trump','Jamal Khashoggi','Lettuce'];
+     var entity = entities[0];
+
+     var entity_images=['donald_trump.jpg','jamal_khashoggi.jpg','romaine.jpg'];
+
      var data;
      var green = "#11cc00";
 
+     //establish top entities
+     var top_entities = g.selectAll(".entity-image")
+			 .data(entity_images)
+			 .enter().append("g")
+			 .attr("class","entity-image");
+
+     //inside each top entity object, append an image
+     top_entities.append("image")
+		 .attr("id",function(d) { return d; })
+		 .attr("xlink:href", function(d) { return  "images/"+d; })
+		 .attr("width",width*.1)
+		 .attr("height","150px")
+		 .attr("x",function(d,i) { return width*.11*i+15; })
+		 .attr("y",function(d,i) { return height*.05; })
+		 .on("mouseover", function(d) {
+		     d3.select(this).style("cursor","pointer");
+		 })
+		 .on("click", function(d,i) {
+		     var name = entities[i]
+		     d3.selectAll('text').style('visibility','hidden');
+		     d3.selectAll('text').style('visibility','visible');
+
+		     d3.selectAll(".pos")
+		       .data(data[name])
+		       .transition().attr("height", function(d) {
+			   return d.positive * 100;
+		       })
+		       .attr("y", function(d) {
+			   return height / 2.0 - 30 - d.positive * 100
+		       });
+
+		     d3.selectAll(".neg")
+		       .data(data[name])
+		       .transition().attr("height", function(d) {
+			   return d.negative * -100;
+		       });
+		 });
+
+     //inside each top entity object, append the name
+     top_entities.append("text")
+		 .attr("x",function(d,i) { return width*.11*i+15+width*.1/2; })
+		 .attr("y",function(d,i) { return height*.05; })
+		 .text(function(d,i) { return entities[i]; })
+		 .style('fill','black')
+		 .style('text-anchor','middle')
+		 .style('visibility','visible');
+
+
      d3.json('test_dataset2.json',function(test_dataset){
          data = test_dataset;
+<<<<<<< HEAD
          var x_offset=25;
 
          g.selectAll(".pos")
@@ -133,19 +214,73 @@
              });
 			 });
 
+=======
+	 var x_offset = width*.1;
+
+         g.selectAll(".pos")
+          .data(data[entity])
+          .enter()
+          .append("rect")
+          .attr("class", "pos")
+          .attr("height", function(d) {
+              return d.positive * 100;
+          })
+          .attr("width", 20)
+          .attr("x", function(d, i) {
+              return x_offset + i * 50 -10;
+          })
+          .attr("y", function(d) {
+              return height / 2.0 - 30 - d.positive * 100
+          })
+          .attr("fill", green)
+          .style("visibility","visible");
+
+         g.selectAll(".neg")
+          .data(data[entity])
+          .enter()
+          .append("rect")
+          .attr("class", "neg")
+          .attr("height", function(d) {
+              return d.negative * -100;
+          })
+          .attr("width", 20)
+          .attr("x", function(d, i) {
+              return x_offset + i * 50 -10;
+          })
+          .attr("y", height / 2.0 + 2)
+          .attr("fill", "red");
+
+         g.selectAll(".source-text")
+          .data(data[entity])
+          .enter()
+          .append('text')
+          .attr('x', function(d, i) {
+              return x_offset + i * 50;
+          })
+          .attr('y', height / 2.0 - 5)
+          .text(function(d) {
+              return d.source;
+          })
+          .style('fill','black')
+          .style('text-anchor','middle');
+
+     });
+
+>>>>>>> 7eb6ab4c711305c50cc0c4627272fafd13c4d18e
      //var url = 'https://www.cs.tufts.edu/~mrussell/vis/test_dataset.json'
 
-/*
-* function call_ajax(query){
-	    $.ajax({
-	    crossOrigin: true,
-	    url: env.ngrok_ip + '/get_saved',
-	    type: "POST",
-	    data: 'name='+query,
-success: organize_data()
-break;
+     /*
+      * function call_ajax(query){
+	$.ajax({
+	crossOrigin: true,
+	url: env.ngrok_ip + '/get_saved',
+	type: "POST",
+	data: 'name='+query,
+	success: organize_data()
+	break;
 
-* };  */
+      * };  */
+
 
 
     </script>
