@@ -1,38 +1,40 @@
 <!DOCTYPE html>
 <html>
     <head>
+	<link rel="stylesheet" href="css/styles.css">
 	<script src="js/env.js"></script>
 	<script lang="javascript" src="js/jquery-3.1.0.min.js"></script>
 	<script lang="javascript" src="js/d3.v4.min.js"></script>
 	<script lang="javascript" src="js/data.js"></script>
-	<script lang="javascript" src="js/slider.js"</script>
 	<script type="text/application/javascript/json" src="js/jquery.ajax-cross-origin.min.js"></script>
-	<link rel="stylesheet" type="text/css" href="css/slider.css">
-	<link rel="stylesheet" href="css/styles.css">
+
   </head>
   <body>
     <svg width=100% height=100%></svg>
     <script>
-
+     
      var width = $(window).width();
      var height = $(window).height();
-
+     
      var svg = d3.select("svg")
 		 .attr('width','100%')
 		 .attr('height','100%');
-
+     
      var background = svg.append('rect')
 			 .attr("width",'100%')
 			 .attr('height','100%')
 			 .attr('fill','#E1F5FE');
-
+     
      var g = svg.append('g');
-
+     
      var sidebar = g.append("rect")
 		    .attr("height","100%")
 		    .attr("width","20%")
 		    .attr("x", width*.8)
-		    .attr('fill','blue')
+		    .attr('fill','blue');
+     
+    // var slider = d3.select('#slider1').call(d3.slider());
+	
 
      //credit http://samherbert.net/svg-loaders/ for the startup image
      /*
@@ -91,30 +93,16 @@
 			   return d.negative * -100;
 		       });
 		 });
-
+     
      //inside each top entity object, append the name
      top_entities.append("text")
 		 .attr("x",function(d,i) { return width*.11*i+15+width*.1/2; })
 		 .attr("y",function(d,i) { return height*.05; })
-		 .text(function(d,i) { console.log(entities[i].length); return entities[i]; })
+		 .text(function(d,i) { return entities[i]; })
 		 .style('fill','black')
 		 .style('text-anchor','middle')
 		 .style('visibility','visible');
 
-
-     function test(min,max){
-	 console.log(min);
-     }
-
-     var color = d3.scaleOrdinal(d3.schemeCategory20);
-     for(var i=0;i<11;i++){
-	 color(i);
-     }
-     
-     setupSlider(14,22,test,color);
-     test(14,22);
-     
-     
      
      d3.json('test_dataset2.json',function(test_dataset){
          data = test_dataset;
@@ -166,9 +154,8 @@
           })
           .style('fill','black')
           .style('text-anchor','middle');
-	 
-     });
 
+     });
      
      //var url = 'https://www.cs.tufts.edu/~mrussell/vis/test_dataset.json'
 
@@ -185,6 +172,7 @@
       * };  */
 
 
+  
     </script>
   </body>
 </html>
