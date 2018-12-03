@@ -13,8 +13,6 @@
 	<script type="text/javascript" src="https://cdn.jsdelivr.net/npm/daterangepicker/daterangepicker.min.js"></script>
 	<link rel="stylesheet" type="text/css" href="https://cdn.jsdelivr.net/npm/daterangepicker/daterangepicker.css" />
 
-
-
     </head>
 
     <body>
@@ -22,269 +20,209 @@
 	<input type="text" name="daterange" value="01/01/2018 - 01/15/2018" />
 
 	<script>
-	    $(function() {
-	    $('input[name="daterange"]').daterangepicker({
-	    opens: 'left'
-	    }, function(start, end, label) {
-	    console.log("A new date selection was made: " + start.format('YYYY-MM-DD') + ' to ' + end.format('YYYY-MM-DD'));
+	  $(function() {
+	      $('input[name="daterange"]').daterangepicker({
+		  opens: 'left'
+	      }, function(start, end, label) {
+		  console.log("A new date selection was made: " + start.format('YYYY-MM-DD') + ' to ' + end.format('YYYY-MM-DD'));
 	    });
 	    });
 	</script>
 	<svg width=100% height=100%></svg>
 	<script>
-     var width = $(window).width();
-     var height = $(window).height();
+	  var width = $(window).width();
+	  var height = $(window).height();
+	  
+	  var svg = d3.select("svg")
+	      .attr('width','100%')
+	      .attr('height','100%');
+	  
+	  var background = svg.append('rect')
+	      .attr("width",'100%')
+	      .attr('height','100%')
+	      .attr('fill','#E1F5FE');
+	  
+	  var g = svg.append('g');
+	  
+	  var sidebar = g.append("rect")
+	      .attr("height","100%")
+	      .attr("width","20%")
+	      .attr("x", width*.8)
+	      .attr('fill','blue');
+	  
+	  var short_labels = ['ABC','BBC','BBN','BI','BZFD','CBC','CBS','CNBC','CNN','FT','FOX','MSNBC','NBC','POL','ECON','HUFF','NYT','WSJ','WASH','USA']
+	  
+	  var entities=['Donald Trump','Khashoggi','Lettuce',"U.S.","Democrats",
+			"Republican",'Facebook','Amazon'];
+	  var entity = entities[0];
+	  
+	  var entity_images=['donald_trump.jpg','jamal_khashoggi.jpg','romaine.jpg','usa.png','democrat_logo.png','republican_logo.svg','facebook.png','amazon.png'];
+	  
+	  var data;
+	  var green = "#11cc00";
+	  
+	  //establish top entities
+	  var top_entities = g.selectAll(".entity-image")
+	      .data(entity_images)
+	      .enter().append("g")
+	      .attr("class","entity-image");
 
-     var svg = d3.select("svg")
-		 .attr('width','100%')
-		 .attr('height','100%');
+	  //inside each top entity object, append an image
+	  top_entities.append("image")
+    .attr("id",function(d) { return d; })
+    .attr("xlink:href", function(d) { return  "images/"+d; })
+    .attr("width",width*.1)
+    .attr("height","75px")
+    .attr("x",function(d,i) { return width*.11*i+15; })
+    .attr("y",function(d,i) { return height*.06; })
+    .on("mouseover", function(d) {
+	d3.select(this).style("cursor","pointer");
+    })
+    .on("click", function(d,i) {
+	var name = entities[i]
+	d3.selectAll('text').style('visibility','visible');
+	console.log(data);
+	d3.selectAll(".pos")
+	    .data(data[name].total_info)
+	    .transition().attr("height", function(d) {
+		return d.positive.sentiment * d.positive.count;
+	    })
+	    .attr("y", function(d) {
+		return height / 2.0 - 30 - d.positive.sentiment * d.positive.count;
+	    });
+	
+	d3.selectAll(".neg")
+	    .data(data[name].total_info)
+	    .transition().attr("height", function(d) {
+		return d.negative.sentiment * d.negative.count * -1;
+	    });
 
-     var background = svg.append('rect')
-			 .attr("width",'100%')
-			 .attr('height','100%')
-			 .attr('fill','#E1F5FE');
+	d3.selectAll(".neu")
+	    .data(data[name].total_info)
+	    .transition().attr("height", function(d) {
+		return d.neutral.sentiment * d.neutral.count;
+	    })
+	    .attr("y", function(d) {
+		return height * .9 - 30 - d.neutral.sentiment * d.neutral.count;
+	    });
+    });
+	  
+	  //inside each top entity object, append the name
+	  top_entities.append("text")
+    .attr("x",function(d,i) { return width*.11*i+15+width*.1/2; })
+    .attr("y",function(d,i) { return height*.05; })
+    .text(function(d,i) { return entities[i]; })
+    .style('fill','black')
+    .style('text-anchor','middle');    
+	  
+	  d3.json('dataset.json',function(dataset){
+              data = dataset;	      
+              var x_offset=25;
+	      
+              g.selectAll(".pos")
+		  .data(data["Donald Trump"].total_info)
+		  .enter()
+		  .append("rect")
+		  .attr("class", "pos")
+		  .attr("height", function(d) {		     
+		      return d.positive.sentiment * d.positive.count;
+		  })
+		  .attr("width", 20)
+		  .attr("x", function(d, i) {
+		      return x_offset + i * 50 -10;
+		  })
+		  .attr("y", function(d) {
+		      return height / 2.0 - 30 - d.positive.sentiment * d.positive.count;
+		  })
+		  .attr("fill", green);
+              g.selectAll(".neg")
+		  .data(data["Donald Trump"].total_info)
+		  .enter()
+		  .append("rect")
+		  .attr("class", "neg")
+		  .attr("height", function(d) {
+		      return d.negative.sentiment * d.negative.count *-1;
+		  })
+		  .attr("width", 20)
+		  .attr("x", function(d, i) {
+		      return x_offset + i * 50 -10;
+		  })
+		  .attr("y", height / 2.0 + 2)
+		  .attr("fill", "red");
+	      
+              g.selectAll("#polarized-source-text")
+		  .data(data["Donald Trump"].total_info)
+		  .enter()
+		  .append('text')
+		  .attr('x', function(d, i) {
+		      return x_offset + i * 50;
+		  })
+		  .attr('y', height / 2.0 - 5)
+		  .text(function(d,i) {
+		      return short_labels[i];//d.source.source_id;
+		  })
+		  .style('fill','black')
+		  .style('text-anchor','middle');
 
-     var g = svg.append('g');
+	      g.selectAll("#neutral-source-text")
+		  .data(data["Donald Trump"].total_info)
+		  .enter()
+		  .append('text')
+		  .attr('x', function(d, i) {
+		      return x_offset + i * 50;
+		  })
+		  .attr('y', height * .9)
+		  .text(function(d,i) {
+		      return short_labels[i];
+		  })
+		  .style('fill','black')
+		  .style('text-anchor','middle');	
 
-     var sidebar = g.append("rect")
-		    .attr("height","100%")
-		    .attr("width","20%")
-		    .attr("x", width*.8)
-		    .attr('fill','blue');
+	       g.selectAll(".neu")
+		  .data(data["Donald Trump"].total_info)
+		  .enter()
+		  .append("rect")
+		  .attr("class", "neu")
+		  .attr("height", function(d) {		     
+		      return d.neutral.sentiment * d.neutral.count;
+		  })
+		  .attr("width", 20)
+		  .attr("x", function(d, i) {
+		      return x_offset + i * 50 -10;
+		  })
+		  .attr("y", function(d) {
+		      return height *.9 - 30 - d.neutral.sentiment * d.neutral.count;
+		  })
+		  .attr("fill", 'blue');
 
-    // var slider = d3.select('#slider1').call(d3.slider());
-
-
-     //credit http://samherbert.net/svg-loaders/ for the startup image
-     /*
-	var im = g.append('svg:image')
-	.attr('xlink:href','js/svg_loading/svg-loaders/circles.svg')
-	.attr('x','50%')
-	.attr('y','50%')
-	.attr('width',200)
-	.attr('height',200);
-      */
-
-     // var d = call_ajax('Donald Trump')
-
-     var entities=['Donald Trump','Jamal Khashoggi','Lettuce'];
-     var entity = entities[0];
-
-     var entity_images=['donald_trump.jpg','jamal_khashoggi.jpg','romaine.jpg'];
-
-     var data;
-     var green = "#11cc00";
-
-     //establish top entities
-     var top_entities = g.selectAll(".entity-image")
-			 .data(entity_images)
-			 .enter().append("g")
-			 .attr("class","entity-image");
-
-     //inside each top entity object, append an image
-     top_entities.append("image")
-		 .attr("id",function(d) { return d; })
-		 .attr("xlink:href", function(d) { return  "images/"+d; })
-		 .attr("width",width*.1)
-		 .attr("height","150px")
-		 .attr("x",function(d,i) { return width*.11*i+15; })
-		 .attr("y",function(d,i) { return height*.05; })
-		 .on("mouseover", function(d) {
-		     d3.select(this).style("cursor","pointer");
-		 })
-		 .on("click", function(d,i) {
-		     var name = entities[i]
-		     d3.selectAll('text').style('visibility','hidden');
-		     d3.selectAll('text').style('visibility','visible');
-
-		     d3.selectAll(".pos")
-		       .data(data[name])
-		       .transition().attr("height", function(d) {
-			   return d.positive * 100;
-		       })
-		       .attr("y", function(d) {
-			   return height / 2.0 - 30 - d.positive * 100
-		       });
-
-		     d3.selectAll(".neg")
-		       .data(data[name])
-		       .transition().attr("height", function(d) {
-			   return d.negative * -100;
-		       });
-		 });
-
-     //inside each top entity object, append the name
-     top_entities.append("text")
-		 .attr("x",function(d,i) { return width*.11*i+15+width*.1/2; })
-		 .attr("y",function(d,i) { return height*.05; })
-		 .text(function(d,i) { return entities[i]; })
-		 .style('fill','black')
-		 .style('text-anchor','middle')
-		 .style('visibility','visible');
-
-
-     d3.json('test_dataset2.json',function(test_dataset){
-         data = test_dataset;
-<<<<<<< HEAD
-         var x_offset=25;
-
-         g.selectAll(".pos")
-           .data(data[entity])
-           .enter()
-           .append("rect")
-           .attr("class", "pos")
-           .attr("height", function(d) {
-             return d.positive * 100;
-           })
-           .attr("width", 20)
-           .attr("x", function(d, i) {
-             return x_offset + i * 50 -10;
-           })
-           .attr("y", function(d) {
-             return height / 2.0 - 30 - d.positive * 100
-           })
-           .attr("fill", green)
-           .style("visibility","visible");
-
-         g.selectAll(".neg")
-           .data(data[entity])
-           .enter()
-           .append("rect")
-           .attr("class", "neg")
-           .attr("height", function(d) {
-             return d.negative * -100;
-           })
-           .attr("width", 20)
-           .attr("x", function(d, i) {
-             return x_offset + i * 50 -10;
-           })
-           .attr("y", height / 2.0 + 2)
-           .attr("fill", "red");
-
-         g.selectAll("#source-text")
-           .data(data[entity])
-           .enter()
-           .append('text')
-           .attr('x', function(d, i) {
-             return x_offset + i * 50;
-           })
-           .attr('y', height / 2.0 - 5)
-           .text(function(d) {
-             return d.source;
-           })
-           .style('fill','black')
-           .style('text-anchor','middle');
-
-     });
-
-     var people_text = d3.select('g').selectAll('text')
-			 .data(people)
-			 .enter()
-			 .append('text')
-      			 .attr('x',function(d,i){ return i*250+250; })
-			 .attr('y',height/2.0+150)
-			 .text(function(d) { return d; })
-			 .style('fill','black')
-			 .style('text-anchor','middle')
-			 .style('visibility','visible')
-			 .on('mouseover',function(d){
-			     d3.select(this).style('cursor','pointer');
-			 })
-			 .on('click',function(name){
-           console.log(name);
-			     d3.selectAll('circle').remove(); //remove so we don't bloat
-			     d3.selectAll('text').style('visibility','hidden');
-			     //im.style('visibility','visible'); //should disable rendering
-			     //	    call_ajax(d);
-			     d3.selectAll('text').style('visibility','visible');
-
-           d3.selectAll(".pos")
-             .data(data[name])
-             .transition().attr("height", function(d) {
-               return d.positive * 100;
-             })
-             .attr("y", function(d) {
-               return height / 2.0 - 30 - d.positive * 100
-             });
-
-           d3.selectAll(".neg")
-             .data(data[name])
-             .transition().attr("height", function(d) {
-               return d.negative * -100;
-             });
-			 });
-
-=======
-	 var x_offset = width*.1;
-
-         g.selectAll(".pos")
-          .data(data[entity])
-          .enter()
-          .append("rect")
-          .attr("class", "pos")
-          .attr("height", function(d) {
-              return d.positive * 100;
-          })
-          .attr("width", 20)
-          .attr("x", function(d, i) {
-              return x_offset + i * 50 -10;
-          })
-          .attr("y", function(d) {
-              return height / 2.0 - 30 - d.positive * 100
-          })
-          .attr("fill", green)
-          .style("visibility","visible");
-
-         g.selectAll(".neg")
-          .data(data[entity])
-          .enter()
-          .append("rect")
-          .attr("class", "neg")
-          .attr("height", function(d) {
-              return d.negative * -100;
-          })
-          .attr("width", 20)
-          .attr("x", function(d, i) {
-              return x_offset + i * 50 -10;
-          })
-          .attr("y", height / 2.0 + 2)
-          .attr("fill", "red");
-
-         g.selectAll(".source-text")
-          .data(data[entity])
-          .enter()
-          .append('text')
-          .attr('x', function(d, i) {
-              return x_offset + i * 50;
-          })
-          .attr('y', height / 2.0 - 5)
-          .text(function(d) {
-              return d.source;
-          })
-          .style('fill','black')
-          .style('text-anchor','middle');
-
-     });
-
->>>>>>> 7eb6ab4c711305c50cc0c4627272fafd13c4d18e
-     //var url = 'https://www.cs.tufts.edu/~mrussell/vis/test_dataset.json'
-
-     /*
-      * function call_ajax(query){
-	$.ajax({
-	crossOrigin: true,
-	url: env.ngrok_ip + '/get_saved',
-	type: "POST",
-	data: 'name='+query,
-	success: organize_data()
-	break;
-
-      * };  */
-
-
+	  });	  	      
 
     </script>
   </body>
 </html>
 
- <!-- <div -- </div>>>
+<!-- //code graveyard -->
+
+<!-- 	  //credit http://samherbert.net/svg-loaders/ for the startup image -->
+<!-- 	  /* -->
+<!-- 	   var im = g.append('svg:image') -->
+<!-- 	   .attr('xlink:href','js/svg_loading/svg-loaders/circles.svg') -->
+<!-- 	   .attr('x','50%') -->
+<!-- 	   .attr('y','50%') -->
+<!-- 	   .attr('width',200) -->
+<!-- 	   .attr('height',200); -->
+<!-- 	  */ -->
+
+<!--      //var url = 'https://www.cs.tufts.edu/~mrussell/vis/test_dataset.json' -->
+
+<!--      /* -->
+<!--       * function call_ajax(query){ -->
+<!-- 	$.ajax({ -->
+<!-- 	crossOrigin: true, -->
+<!-- 	url: env.ngrok_ip + '/get_saved', -->
+<!-- 	type: "POST", -->
+<!-- 	data: 'name='+query, -->
+<!-- 	success: organize_data() -->
+<!-- 	break; -->
+
+<!--       * };  */ -->
