@@ -72,8 +72,7 @@
 		   .attr("id",function(d) { return d; })
 		   .attr("xlink:href", function(d) { return  "images/"+d; })
 		   .attr("width",width*.1)
-		   .attr("height","75px")
-       //  .attr("x",function(d,i) { return width * .75; })//width*.11*i+15; })
+		   .attr("height","75px")       
 		   .attr("y",function(d,i) { return height*.15*i + 150; })
 		   .on("mouseover", function(d) {
 		       d3.select(this).style("cursor","pointer");
@@ -87,7 +86,7 @@
       				    .data(data[name].total_info)
       				    .transition().attr("height", positive_height)
       				    .attr("y", function(d) {
-      					return height * .4 - 30 - positive_height(d);
+      					return bar_container.attr('height') * .3 - 30 - positive_height(d);
       				    });
       		       d3.selectAll(".neg")
       			 .data(data[name].total_info)
@@ -96,7 +95,7 @@
       			 .data(data[name].total_info)
       			 .transition().attr("height", neutral_height)
       			 .attr("y", function(d) {
-      			     return height * .9 - 30 - neutral_height(d);
+      			     return bar_container.attr('height') * .75 - 30 - neutral_height(d);
       			 });
 		   });
 	    //inside each top entity object, append the name
@@ -117,97 +116,97 @@
 	   console.log(data);
 	   bar_container.selectAll(".pos")
     	    .data(data["Donald Trump"].total_info)
-    	    .enter()
-    	    .append("rect")
-    	    .attr("class", "pos")
-    	    .attr("height", positive_height)
-    	    .attr("width", 20)
-    	    .attr("x", function(d, i) {
-    		return x_offset + i * 50 -10;
-    	    })
-    	    .attr("y", function(d) {
-    		return bar_container.attr('height') * .3 - 30 - positive_height(d);
-    	    })
-    	    .attr("fill", green);
+    			.enter()
+    			.append("rect")
+    			.attr("class", "pos")
+    			.attr("height", positive_height)
+    			.attr("width", 20)
+    			.attr("x", function(d, i) {
+    			    return x_offset + i * 50 -10;
+    			})
+    			.attr("y", function(d) {
+    			    return bar_container.attr('height') * .3 - 30 - positive_height(d);
+    			})
+    			.attr("fill", green);
 	   bar_container.selectAll(".neg")
-  	    .data(data["Donald Trump"].total_info)
-  	    .enter()
-  	    .append("rect")
-  	    .attr("class", "neg")
-  	    .attr("height", negative_height)
-  	    .attr("width", 20)
-  	    .attr("x", function(d, i) {
-  	    return x_offset + i * 50 -10;
-  	    })
-  	    .attr("y", bar_container.attr('height') * .3 + 2)
-  	    .attr("fill", "red");
-	    bar_container.selectAll(".polarized-source-text")
-  	    .data(data["Donald Trump"].total_info)
-	    .attr('class','polarized-source-text')
-  	    .enter()
-  	    .append('text')
-  	    .attr('x', function(d, i) {
-  	    return x_offset + i * 50;
-  	    })
-	    
-  	    .attr('y', bar_container.attr('height') * .3 - 5)
-  	    .text(function(d,i) {
-  	    return short_labels[i];//d.source.source_id;
-  	    })
-	    .style('fill',function(d,i) {
-	    if (i==0) return 'green';
-	    else return 'black';
-	    })
-  	    .style('fill','black')
-  	    .style('text-anchor','middle')
-	    .on('mouseover', function(d){
-	    d3.select(this).style('cursor','pointer');
-	    })
-	    .on('click', function(d,i) {
-	    graph_news_org(i);
-	    color_polarized_text(i);		 
-	    });
-	    bar_container.selectAll("#neutral-source-text")
-  	    .data(data["Donald Trump"].total_info)
-  	    .enter()
-  	    .append('text')
-  	    .attr('x', function(d, i) {
-  	    return x_offset + i * 50;
-  	    })
-  	    .attr('y', bar_container.attr('height') * .75)
-  	    .text(function(d,i) {
-  	    return short_labels[i];
-  	    })
-  	    .style('fill','black')
-  	    .style('text-anchor','middle');
-	    bar_container.selectAll(".neu")
-  	    .data(data["Donald Trump"].total_info)
-  	    .enter()
-  	    .append("rect")
-  	    .attr("class", "neu")
-  	    .attr("height", neutral_height)
-  	    .attr("width", 20)
-  	    .attr("x", function(d, i) {
-  	    return x_offset + i * 50 -10;
-  	    })
-  	    .attr("y", function(d) {
-  	    return bar_container.attr('height') *.75 - 30 - neutral_height(d);
-  	    })
-  	    .attr("fill", 'blue');
-
-	    graph_news_org(0);
-	    });
-
-	    
-	    function color_polarized_text(y){
-	    d3.selectAll(".polarized-source-text")
-	    .data(data["Donald Trump"].total_info)
-	    .transition().style('fill',function(d,i){		 
-	    if (i==y) { console.log("same!"); return 'green'; }
-	    else { console.log('different'); return 'black'; }
-	    ;});	  
+  			.data(data["Donald Trump"].total_info)
+  			.enter()
+  			.append("rect")
+  			.attr("class", "neg")
+  			.attr("height", negative_height)
+  			.attr("width", 20)
+  			.attr("x", function(d, i) {
+  			    return x_offset + i * 50 -10;
+  			})
+  			.attr("y", bar_container.attr('height') * .3 + 2)
+  			.attr("fill", "red");
+	   bar_container.selectAll(".polarized-source-text")
+  			.data(data["Donald Trump"].total_info)
+			.attr('class','polarized-source-text')
+  			.enter()
+  			.append('text')
+  			.attr('x', function(d, i) {
+  			    return x_offset + i * 50;
+  			})
+	   
+  			.attr('y', bar_container.attr('height') * .3 - 5)
+  			.text(function(d,i) {
+  			    return short_labels[i];//d.source.source_id;
+  			})
+			.style('fill',function(d,i) {
+			    if (i==0) return 'green';
+			    else return 'black';
+			})
+  			.style('fill','black')
+  			.style('text-anchor','middle')
+			.on('mouseover', function(d){
+			    d3.select(this).style('cursor','pointer');
+			})
+			.on('click', function(d,i) {
+			    graph_news_org(i);
+			    color_polarized_text(i);		 
+			});
+	   bar_container.selectAll("#neutral-source-text")
+  			.data(data["Donald Trump"].total_info)
+  			.enter()
+  			.append('text')
+  			.attr('x', function(d, i) {
+  			    return x_offset + i * 50;
+  			})
+  			.attr('y', bar_container.attr('height') * .75)
+  			.text(function(d,i) {
+  			    return short_labels[i];
+  			})
+  			.style('fill','black')
+  			.style('text-anchor','middle');
+	   bar_container.selectAll(".neu")
+  			.data(data["Donald Trump"].total_info)
+  			.enter()
+  			.append("rect")
+  			.attr("class", "neu")
+  			.attr("height", neutral_height)
+  			.attr("width", 20)
+  			.attr("x", function(d, i) {
+  			    return x_offset + i * 50 -10;
+  			})
+  			.attr("y", function(d) {
+  			    return bar_container.attr('height') *.75 - 30 - neutral_height(d);
+  			})
+  			.attr("fill", 'blue');
+	   
+	   graph_news_org(0);
+       });
+       
+       
+       function color_polarized_text(y){
+	   d3.selectAll(".polarized-source-text")
+	     .data(data["Donald Trump"].total_info)
+	     .transition().style('fill',function(d,i){		 
+		 if (i==y) { console.log("same!"); return 'green'; }
+		 else { console.log('different'); return 'black'; }
+		 ;});	  
 	    }	 
-
+       
 	    function graph_news_org(news_org_loc){
 
 	    var y=[];
