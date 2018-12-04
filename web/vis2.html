@@ -228,6 +228,102 @@
 					       .attr('y1',bar_container.attr('height') * bar_y_offset - 30)
 					       .attr('y2',bar_container.attr('height') * bar_y_offset - 30);
 
+	   polarized_cross_bottom = bar_container.append('line')
+						 .style('stroke','black')
+						 .attr('width','2')
+						 .attr('x1',x_offset-30)
+						 .attr('x2',x_offset-20)
+						 .attr('y1',bar_container.attr('height') * bar_y_offset + 225)
+						 .attr('y2',bar_container.attr('height') * bar_y_offset + 225);
+
+	   polarized_cross_top = bar_container.append('line')
+					      .style('stroke','black')
+					      .attr('width','2')
+					      .attr('x1',x_offset-30)
+					      .attr('x2',x_offset-20)
+					      .attr('y1',bar_container.attr('height') * bar_y_offset - 225)
+					      .attr('y2',bar_container.attr('height') * bar_y_offset - 225);
+
+	   polarized_cross_bottom = bar_container.append('line')
+						 .style('stroke','black')
+						 .attr('width','2')
+						 .attr('x1',x_offset-30)
+						 .attr('x2',x_offset-20)
+						 .attr('y1',bar_container.attr('height') * bar_y_offset + 112.5)
+						 .attr('y2',bar_container.attr('height') * bar_y_offset + 112.5);
+
+	   polarized_cross_top = bar_container.append('line')
+					      .style('stroke','black')
+					      .attr('width','2')
+					      .attr('x1',x_offset-30)
+					      .attr('x2',x_offset-20)
+					      .attr('y1',bar_container.attr('height') * bar_y_offset - 112.5)
+					      .attr('y2',bar_container.attr('height') * bar_y_offset - 112.5);
+
+	   zero_high = bar_container.append("text")
+				    .attr("x", x_offset-35)
+				    .attr("y", bar_container.attr('height') * bar_y_offset - 108)
+				    .text('5')
+				    .style('fill',function(d,i) {
+					return 'black';
+				    })
+				    .style('text-anchor','middle');
+
+	   zero_low = bar_container.append("text")
+				   .attr("x", x_offset-38)
+				   .attr("y", bar_container.attr('height') * bar_y_offset + 117)
+				   .text('-5')
+				   .style('fill',function(d,i) {
+				       return 'black';
+				   })
+				   .style('text-anchor','middle');
+
+	   zero_high = bar_container.append("text")
+				    .attr("x", x_offset-35)
+				    .attr("y", bar_container.attr('height') * bar_y_offset - 25)
+				    .text('0')
+				    .style('fill',function(d,i) {
+					return 'black';
+				    })
+				    .style('text-anchor','middle');
+
+	   zero_low = bar_container.append("text")
+				   .attr("x", x_offset-35)
+				   .attr("y", bar_container.attr('height') * bar_y_offset + 10)
+				   .text('0')
+				   .style('fill',function(d,i) {
+				       return 'black';
+				   })
+				   .style('text-anchor','middle');
+
+	   ten_high = bar_container.append("text")
+				   .attr("x", x_offset-40)
+				   .attr("y", bar_container.attr('height') * bar_y_offset - 220)
+				   .text('10')
+				   .style('fill',function(d,i) {
+				       return 'black';
+				   })
+				   .style('text-anchor','middle');
+
+	   ten_low = bar_container.append("text")
+				  .attr("x", x_offset-40)
+				  .attr("y", bar_container.attr('height') * bar_y_offset + 230)
+				  .text('-10')
+				  .style('fill',function(d,i) {
+				      return 'black';
+				  })
+				  .style('text-anchor','middle');
+
+	   title_text = bar_container.append("text")
+				     .attr("x", bar_container.attr('width')/2.0)
+				     .attr("y", bar_container.attr('height') * bar_y_offset - 190)
+				     .text('Average Positive and Negative Sentiment For ' + curr_entity)
+				     .style('font-size','25px')
+				     .style('fill',function(d,i) {
+					 return 'black';
+				     })
+				     .style('text-anchor','middle');
+
 	   graph_news_org(curr_news_source,curr_entity);
        });
 
@@ -307,68 +403,69 @@
 	       Plotly.purge(TESTER);
 	       Plotly.plot( TESTER, [{
 		   x: x,
-		   y: y_avg,}], {title: short_labels[news_org_loc] + ' news over the week for ' + entity_name});
+		   y: y_avg,}], {title: short_labels[news_org_loc] + ' Daily Average Sentiment From 11/14-11/22 for ' + entity_name});
 
 	       //{ margin: { t: 0, l:0, r:0 },
 
 	   });
+	   title_text.text('Average Positive and Negative Sentiment For ' + curr_entity)
        };
 
 
-       function positive_height(d) {
-	   total_count = d.positive.count + d.neutral.count + (d.negative.count);
-	   if (total_count == 0) {
-	       return 0;
-	   }	
-	   return normalized_sentiment(d.positive.sentiment) * (d.positive.count / total_count) * 40;      
-       }
-       function neutral_height(d) {
-	   total_count = d.positive.count + d.neutral.count + (d.negative.count);
-	   if (total_count == 0) {
-	       return 0;
-	   }
-	   //avg absolute value of sentiment
-	   return (0.37 * d.neutral.count / total_count) * 50;
-       }
-       function negative_height(d) {
-	   total_count = d.positive.count + d.neutral.count + (d.negative.count);
-	   if (total_count == 0) {
-	       return 0;
-	   }
-	   return normalized_sentiment(d.negative.sentiment) * -1 * (d.negative.count / total_count) * 40;
-       }
-       function normalized_sentiment(sentiment) {
-	   var max_sent = 9.72;
-	   var min_sent = -17.44;
-	   var avg_sent = -0.0335;
-	   var std_sent = 0.227;
-	   //mean normalization
-	   return ( sentiment - avg_sent ) / std_sent;
-	   //  return (sentiment - avg_sent) / (max_sent - min_sent);
-	   //return (sentiment - min_sent) / (max_sent - min_sent);// this is for min-max scaling
-       }
-       function normalized_sentiment_neutral(sentiment) {
-	   var max_sent = 40.3;
-	   var min_sent = 0;
-	   var avg_sent = 0.037;
-	   //	   return (sentiment - avg_sent) / (max_sent - min_sent);
-	   //	   var std_sent = 0.328;	  
-	   return (sentiment - avg_sent) / std_sent;
-       }
-
-       function search(ele) {
-           if(event.key === 'Enter') {
-               keys = Object.keys(data);
-               console.log(keys);
-               for (i = 0; i < keys.length; i++) {
-
-		   if (keys[i].toLowerCase().includes(ele.value.toLowerCase())) {
-                       update_sentiment(keys[i]);
-                       break;
+	       function positive_height(d) {
+		   total_count = d.positive.count + d.neutral.count + (d.negative.count);
+		   if (total_count == 0) {
+		       return 0;
+		   }	
+		   return normalized_sentiment(d.positive.sentiment) * (d.positive.count / total_count) * 40;      
+	       }
+	       function neutral_height(d) {
+		   total_count = d.positive.count + d.neutral.count + (d.negative.count);
+		   if (total_count == 0) {
+		       return 0;
 		   }
-               }
-           }
-       }
+		   //avg absolute value of sentiment
+		   return (0.37 * d.neutral.count / total_count) * 50;
+	       }
+	       function negative_height(d) {
+		   total_count = d.positive.count + d.neutral.count + (d.negative.count);
+		   if (total_count == 0) {
+		       return 0;
+		   }
+		   return normalized_sentiment(d.negative.sentiment) * -1 * (d.negative.count / total_count) * 40;
+	       }
+	       function normalized_sentiment(sentiment) {
+		   var max_sent = 9.72;
+		   var min_sent = -17.44;
+		   var avg_sent = -0.0335;
+		   var std_sent = 0.227;
+		   //mean normalization
+		   return ( sentiment - avg_sent ) / std_sent;
+		   //  return (sentiment - avg_sent) / (max_sent - min_sent);
+		   //return (sentiment - min_sent) / (max_sent - min_sent);// this is for min-max scaling
+	       }
+	       function normalized_sentiment_neutral(sentiment) {
+		   var max_sent = 40.3;
+		   var min_sent = 0;
+		   var avg_sent = 0.037;
+		   //	   return (sentiment - avg_sent) / (max_sent - min_sent);
+		   //	   var std_sent = 0.328;	  
+		   return (sentiment - avg_sent) / std_sent;
+	       }
+
+	       function search(ele) {
+		   if(event.key === 'Enter') {
+		       keys = Object.keys(data);
+		       console.log(keys);
+		       for (i = 0; i < keys.length; i++) {
+
+			   if (keys[i].toLowerCase().includes(ele.value.toLowerCase())) {
+			       update_sentiment(keys[i]);
+			       break;
+			   }
+		       }
+		   }
+	       }
 
       </script>
     </body>
