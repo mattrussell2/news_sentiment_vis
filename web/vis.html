@@ -79,34 +79,34 @@
     .attr("x",function(d,i) { return width*.11*i+15; })
     .attr("y",function(d,i) { return height*.06; })
     .on("mouseover", function(d) {
-	d3.select(this).style("cursor","pointer");
-    })
-    .on("click", function(d,i) {
-      	var name = entities[i]
-      	d3.selectAll('text').style('visibility','visible');
+    	d3.select(this).style("cursor","pointer");
+        })
+        .on("click", function(d,i) {
+          	var name = entities[i]
+          	d3.selectAll('text').style('visibility','visible');
 
-      	console.log(data);
+          	console.log(data);
 
-        var axis = d3.selectAll(".axis")
+            var axis = d3.selectAll(".axis")
 
-      	d3.selectAll(".pos")
-      	    .data(data[name].total_info)
-      	    .transition().attr("height", positive_height)
-      	    .attr("y", function(d) {
-      		     return height * .4 - 30 - positive_height(d);
-      	    });
+          	d3.selectAll(".pos")
+          	    .data(data[name].total_info)
+          	    .transition().attr("height", positive_height)
+          	    .attr("y", function(d) {
+          		     return height * .4 - 30 - positive_height(d);
+          	    });
 
-      	d3.selectAll(".neg")
-      	    .data(data[name].total_info)
-      	    .transition().attr("height", negative_height);
+          	d3.selectAll(".neg")
+          	    .data(data[name].total_info)
+          	    .transition().attr("height", negative_height);
 
-      	d3.selectAll(".neu")
-      	    .data(data[name].total_info)
-      	    .transition().attr("height", neutral_height)
-      	    .attr("y", function(d) {
-      		     return height * .9 - 30 - neutral_height(d);
-      	    });
-          });
+          	d3.selectAll(".neu")
+          	    .data(data[name].total_info)
+          	    .transition().attr("height", neutral_height)
+          	    .attr("y", function(d) {
+          		     return height * .9 - 30 - neutral_height(d);
+          	    });
+              });
 
 	  //inside each top entity object, append the name
 	  top_entities.append("text")
