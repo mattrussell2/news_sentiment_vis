@@ -85,7 +85,8 @@
 
        var curr_news_source = 0;
        var curr_entity = 'Donald Trump';
-       
+
+       var bar_y_offset = .5
        //establish top entities
 
        var top_entities = entity_container.selectAll(".entity-image")
@@ -115,17 +116,17 @@
 			.data(data[name].total_info)
 			.transition().attr("height", positive_height)
 			.attr("y", function(d) {
-			    return bar_container.attr('height') * .3 - 30 - positive_height(d);
+			    return bar_container.attr('height') * bar_y_offset - 30 - positive_height(d);
 			});
            d3.selectAll(".neg")
              .data(data[name].total_info)
              .transition().attr("height", negative_height);
-           d3.selectAll(".neu")
-             .data(data[name].total_info)
-             .transition().attr("height", neutral_height)
-             .attr("y", function(d) {
-		 return bar_container.attr('height') * .75 - 30 - neutral_height(d);
-             });
+           /*   d3.selectAll(".neu")
+              .data(data[name].total_info)
+              .transition().attr("height", neutral_height)
+              .attr("y", function(d) {
+	      return bar_container.attr('height') * .75 - 30 - neutral_height(d);
+              });*/
 	   curr_entity=name
 	   graph_news_org(curr_news_source,curr_entity);
        }
@@ -157,7 +158,7 @@
     			    return x_offset + i * 50 -10;
     			})
     			.attr("y", function(d) {
-    			    return bar_container.attr('height') * .3 - 30 - positive_height(d);
+    			    return bar_container.attr('height') * bar_y_offset - 30 - positive_height(d);
     			})
     			.attr("fill", green);
 	   bar_container.selectAll(".neg")
@@ -170,7 +171,7 @@
   			.attr("x", function(d, i) {
   			    return x_offset + i * 50 -10;
   			})
-  			.attr("y", bar_container.attr('height') * .3 + 2)
+  			.attr("y", bar_container.attr('height') * bar_y_offset + 5)
   			.attr("fill", "red");
 
 	   bar_container.selectAll(".polarized-source-text")
@@ -182,7 +183,7 @@
   			    return x_offset + i * 50;
   			})
 
-  			.attr('y', bar_container.attr('height') * .3 - 5)
+  			.attr('y', bar_container.attr('height') * bar_y_offset - 5)
   			.text(function(d,i) {
   			    return short_labels[i];//d.source.source_id;
   			})
@@ -208,48 +209,63 @@
 					 .attr('width','2')
 					 .attr('x1',x_offset-25)
 					 .attr('x2',x_offset-25)
-					 .attr('y1',bar_container.attr('height') * .3 -  5 - 200)
-					 .attr('y2',bar_container.attr('height') *.3 - 5 + 200);
+					 .attr('y1',bar_container.attr('height') * bar_y_offset - 225)
+					 .attr('y2',bar_container.attr('height') * bar_y_offset + 225);
 
-	   polarized_axis = bar_container.append('line')
-					 .style('stroke','black')
-					 .attr('width','2')
-					 .attr('x1',x_offset-25)
-					 .attr('x2',x_offset-25)
-					 .attr('y1',bar_container.attr('height') * .3 -  5 - 200)
-					 .attr('y2',bar_container.attr('height') *.3 - 5 + 200);
-	   
-	   bar_container.selectAll("#neutral-source-text")
-  			.data(data[curr_entity].total_info)
-  			.enter()
-  			.append('text')
-  			.attr('x', function(d, i) {
-  			    return x_offset + i * 50;
-  			})
-  			.attr('y', bar_container.attr('height') * .75)
-  			.text(function(d,i) {
-  			    return short_labels[i];
-  			})
-  			.style('fill','black')
-  			.style('text-anchor','middle');
-	   bar_container.selectAll(".neu")
-  			.data(data[curr_entity].total_info)
-  			.enter()
-  			.append("rect")
-  			.attr("class", "neu")
-  			.attr("height", neutral_height)
-  			.attr("width", 20)
-  			.attr("x", function(d, i) {
-  			    return x_offset + i * 50 -10;
-  			})
-  			.attr("y", function(d) {
-  			    return bar_container.attr('height') *.75 - 30 - neutral_height(d);
-  			})
-  			.attr("fill", 'blue');
+	   polarized_cross_low = bar_container.append('line')
+					      .style('stroke','black')
+					      .attr('width','2')
+					      .attr('x1',x_offset-30)
+					      .attr('x2',x_offset-20)
+					      .attr('y1',bar_container.attr('height') * bar_y_offset + 5)
+					      .attr('y2',bar_container.attr('height') * bar_y_offset + 5);
 
+	   polarized_cross_high = bar_container.append('line')
+					       .style('stroke','black')
+					       .attr('width','2')
+					       .attr('x1',x_offset-30)
+					       .attr('x2',x_offset-20)
+					       .attr('y1',bar_container.attr('height') * bar_y_offset - 5)
+					       .attr('y2',bar_container.attr('height') * bar_y_offset - 5);
+	   //////COMMENT STARTS HERE
+	   /*neutral_axis = bar_container.append('line')
+	      .style('stroke','black')
+	      .attr('width','2')
+	      .attr('x1',x_offset-25)
+	      .attr('x2',x_offset-25)
+	      .attr('y1',bar_container.attr('height') * bar_y_offset -  5 - 200)
+	      .attr('y2',bar_container.attr('height') * bar_y_offset - 5 + 200);
+	      
+	      bar_container.selectAll("#neutral-source-text")
+  	      .data(data[curr_entity].total_info)
+  	      .enter()
+  	      .append('text')
+  	      .attr('x', function(d, i) {
+  	      return x_offset + i * 50;
+  	      })
+  	      .attr('y', bar_container.attr('height') * .75)
+  	      .text(function(d,i) {
+  	      return short_labels[i];
+  	      })
+  	      .style('fill','black')
+  	      .style('text-anchor','middle');
+	      bar_container.selectAll(".neu")
+  	      .data(data[curr_entity].total_info)
+  	      .enter()
+  	      .append("rect")
+  	      .attr("class", "neu")
+  	      .attr("height", neutral_height)
+  	      .attr("width", 20)
+  	      .attr("x", function(d, i) {
+  	      return x_offset + i * 50 -10;
+  	      })
+  	      .attr("y", function(d) {
+  	      return bar_container.attr('height') *.75 - 30 - neutral_height(d);
+  	      })
+  	      .attr("fill", 'blue');*/
+	   ////////COMMENT ENDS HERE
 	   graph_news_org(curr_news_source,curr_entity);
        });
-
 
        function color_polarized_text(y){
 	   d3.selectAll(".polarized-source-text")
@@ -302,13 +318,14 @@
 	   if (total_count == 0) {
 	       return 0;
 	   }	
-	   return normalized_sentiment(d.positive.sentiment) * (d.positive.count / total_count) * 50;
+	   return normalized_sentiment(d.positive.sentiment) * (d.positive.count / total_count) * 40;
        }
        function neutral_height(d) {
 	   total_count = d.positive.count + d.neutral.count + (d.negative.count);
 	   if (total_count == 0) {
 	       return 0;
 	   }
+	   //avg absolute value of sentiment
 	   return (0.37 * d.neutral.count / total_count) * 50;
        }
        function negative_height(d) {
@@ -316,7 +333,7 @@
 	   if (total_count == 0) {
 	       return 0;
 	   }
-	   return normalized_sentiment(d.negative.sentiment) * -1 * (d.negative.count / total_count) * 50;
+	   return normalized_sentiment(d.negative.sentiment) * -1 * (d.negative.count / total_count) * 40;
        }
        function normalized_sentiment(sentiment) {
 	   var max_sent = 9.72;
@@ -334,7 +351,7 @@
 	   var avg_sent = 0.037;
 	   //	   return (sentiment - avg_sent) / (max_sent - min_sent);
 	   //	   var std_sent = 0.328;	  
-	   return (sentiment - mean_sent) / std_sent;
+	   return (sentiment - avg_sent) / std_sent;
        }
 
        function search(ele) {
