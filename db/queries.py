@@ -49,7 +49,7 @@ where entity_id = %s
 GET_TOP_MENTIONS_COUNT_ALL = '''
 select m.entity_id, e.name, count(m.entity_id)
 from mention m join entity e on (m.entity_id = e.entity_id)
-    join favorite_sources s on (m.source_id = s.source_id)
+    join source s on (m.source_id = s.source_id)
 where m.entity_id != e.name
 group by m.entity_id
 order by count(m.entity_id) desc
@@ -59,7 +59,7 @@ limit {}
 GET_TOP_MENTIONS_SUM = '''
 select m.entity_id, e.name, sum(m.salience)
 from mention m join entity e on (m.entity_id = e.entity_id)
-    join favorite_sources s on (m.source_id = s.source_id)
+    join source s on (m.source_id = s.source_id)
 where m.datetime_published > '{}'
     and m.entity_id != e.name
 group by m.entity_id
@@ -88,7 +88,7 @@ from mention m1 join mention m2
       and m1.source_id = m2.source_id
       and m1.datetime_published = m2.datetime_published)
   join entity e on (m1.entity_id = e.entity_id)
-  join favorite_sources s on (m1.source_id = s.source_id)
+  join source s on (m1.source_id = s.source_id)
 where m2.entity_id = '%s' and m1.entity_id != m2.entity_id
       and m1.datetime_published > '%s'
 group by m1.entity_id
@@ -98,7 +98,7 @@ limit %s
 
 GET_ARTICLES_BY_ENTITY = '''
 select a.*, s.name
-from article a join favorite_sources s on (a.source_id = s.source_id)
+from article a join source s on (a.source_id = s.source_id)
      join mention m on (a.title = m.article_title and
                         a.source_id = m.source_id and
                         a.datetime_published = m.datetime_published)
@@ -122,7 +122,7 @@ select source_id, name from source
 TOP_ENTITIES_BY_SOURCE = '''
 select e.*, avg(m.sentiment_score), avg(m.sentiment_magnitude),
        avg(m.salience), sum(m.salience)
-from mention m join favorite_sources s on (s.source_id = m.source_id)
+from mention m join source s on (s.source_id = m.source_id)
     join entity e on (e.entity_id = m.entity_id)
 where m.source_id = '{}' and datetime_published > '{}'
 group by m.entity_id
@@ -132,7 +132,7 @@ order by sum(m.salience)
 SOURCES_BY_ENTITY = '''
 select s.name, avg(m.sentiment_score), avg(m.sentiment_magnitude),
        avg(m.salience), sum(m.salience), count(m.entity_id)
-from mention m join favorite_sources s on (s.source_id = m.source_id)
+from mention m join source s on (s.source_id = m.source_id)
     join entity e on (e.entity_id = m.entity_id)
 where m.entity_id = '{}' and datetime_published > '{}'
 group by m.source_id
@@ -296,4 +296,58 @@ limit {}
 
 GET_TOTAL_ARTICLES_FROM_SOURCE_BY_DATE = """
 select count(*) from article where source_id = '{}' and datetime_published = '{}'
+"""
+
+GET_MAX_MIN_SENTIMENT = """
+select max(sentiment_score * sentiment_magnitude),
+       min(sentiment_score * sentiment_magnitude)
+from mention
+"""
+
+GET_MAX_MIN_SENTIMENT_NEUTRAL = """
+select max(sentiment_magnitude), min(sentiment_magnitude)
+from mention
+where sentiment_score = 0
+"""
+
+GET_AVG_STD_SENTIMENT_NEUTRAL = """
+select avg(sentiment_magnitude), std(sentiment_magnitude)
+from mention
+where sentiment_score = 0
+"""
+
+GET_AVG_STD_SENTIMENT = """
+select avg(sentiment_score * sentiment_magnitude),
+       std(sentiment_score * sentiment_magnitude)
+from mention
+"""
+
+GET_TOP_STD_ENTITIES = """
+select m.entity_id, e.name, std(m.sentiment_score)
+from mention m join entity e on (m.entity_id = e.entity_id)
+    join source s on (m.source_id = s.source_id)
+where m.entity_id != e.name
+group by m.entity_id
+order by std(m.sentiment_score) desc
+limit {}
+"""
+
+GET_TOP_POS_ENTITIES = """
+select m.entity_id, e.name, avg(m.sentiment_score), count(*), (avg(m.sentiment_score) * count(*))
+from mention m join entity e on (m.entity_id = e.entity_id)
+    join source s on (m.source_id = s.source_id)
+where m.entity_id != e.name
+group by m.entity_id
+order by (avg(m.sentiment_score) * count(*)) desc
+limit {}
+"""
+
+GET_TOP_NEG_ENTITIES = """
+select m.entity_id, e.name, avg(m.sentiment_score), count(*), (avg(m.sentiment_score) * count(*))
+from mention m join entity e on (m.entity_id = e.entity_id)
+    join source s on (m.source_id = s.source_id)
+where m.entity_id != e.name
+group by m.entity_id
+order by (avg(m.sentiment_score) * count(*)) asc
+limit {}
 """
