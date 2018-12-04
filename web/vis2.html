@@ -14,46 +14,46 @@
     <body>
       <svg width=100% height=100%></svg>
       <script>
-	var width = $(window).width();
-	var height = $(window).height();
-	var svg = d3.select("svg")
-	.attr('width','100%')
-	.attr('height','100%');
-	
-	var bar_container = svg.append('g')
-	.attr('width',.75*width)
-	.attr('height',.75*height);
-	
-	bar_container.append('rect')
-	.attr('fill','#e6e6fa')
-	.attr('width',bar_container.attr('width'))
-	.attr('height',bar_container.attr('height'));
-	
-	var plot_container = svg.append('g')
-				.attr('width',.75*width)
-				.attr('height',.25*height)
-				.attr('transform','translate(0,' + .75*height + ')')
-       plot_container.append('rect')
-				.attr('width',plot_container.attr('width'))
-				.attr('height',plot_container.attr('height')) 	 
-				.attr('fill','#fffaf0');
-	
-	var entity_container = svg.append('g')
-	.attr('width',.25*width)
-	.attr('height',height)
-	.attr('transform','translate(' + .75*width + ',0)')
-	entity_container.append('rect')
-	.attr('width',entity_container.attr('width'))
-	.attr('height',entity_container.attr('height')) 	 
-	.attr('fill','#e0eee0');
+       var width = $(window).width();
+       var height = $(window).height();
+       var svg = d3.select("svg")
+		   .attr('width','100%')
+		   .attr('height','100%');
+       
+       var bar_container = svg.append('g')
+			      .attr('width',.75*width)
+			      .attr('height',.75*height);
+       
+       bar_container.append('rect')
+		    .attr('fill','#e6e6fa')
+		    .attr('width',bar_container.attr('width'))
+		    .attr('height',bar_container.attr('height'));
+       
+       var plot_container = d3.select('body').append('div')
+			      .attr('id','plot_container')
+			      .style('transform','translate(0,' + .75*height + ')')
+			      .style('width',.75*width)
+			      .style('height',.25*height)
+			      .style('position','absolute')
+			      .style('top',function() { return '75%'; })
+			      .style('left',function() { return width/4; });
+       
+       var entity_container = svg.append('g')
+				 .attr('width',.25*width)
+				 .attr('height',height)
+				 .attr('transform','translate(' + .75*width + ',0)')
+       entity_container.append('rect')
+				 .attr('width',entity_container.attr('width'))
+				 .attr('height',entity_container.attr('height')) 	 
+				 .attr('fill','#e0eee0');
 
 
-	var graph = plot_container.append('div')
-	.attr('id','graph')
-	.attr('width',width*.25)
-	.attr('height',height*.1);
-	
- 
+       /* var graph = plot_container.append('div')
+	  .attr('id','graph')
+	  .attr('width',width*.25)
+	  .attr('height',height*.1);
+	*/
+       
 
        var short_labels = ['ABC','BBC','BBN','BI','BZFD','CBC','CBS','CNBC','CNN','FT','FOX','MSNBC','NBC','POL','ECON','HUFF','NYT','WSJ','WASH','USA'];
 
@@ -98,7 +98,7 @@
       			     return bar_container.attr('height') * .75 - 30 - neutral_height(d);
       			 });
 		   });
-	    //inside each top entity object, append the name
+       //inside each top entity object, append the name
        top_entities.append("text")
 		   .attr("x",function(d,i) { return 75; }) //width*.75+75; })
 		   .attr("y",function(d,i) { return height*.15*i+150; })
@@ -115,7 +115,7 @@
 	   var x_offset=25;
 	   console.log(data);
 	   bar_container.selectAll(".pos")
-    	    .data(data["Donald Trump"].total_info)
+    			.data(data["Donald Trump"].total_info)
     			.enter()
     			.append("rect")
     			.attr("class", "pos")
@@ -205,115 +205,71 @@
 		 if (i==y) { console.log("same!"); return 'green'; }
 		 else { console.log('different'); return 'black'; }
 		 ;});	  
-	    }	 
+       }	 
        
-	    function graph_news_org(news_org_loc){
-
-	    var y=[];
-	    d3.json('dataset_with_time.json',function(dataset){
-	    data=dataset	     
-	    for (var day in data['Donald Trump'].date_info){     	      
-	    y.push(data['Donald Trump'].date_info[day]['daily_info'][news_org_loc]); //0th index is abc news
-	    }
-	    
-	    var y_avg=[];
-	    
-	    for (var day in y){
-	    //get average sentiment for this day
-	    y_avg.push((y[day]['negative'].count * y[day]['negative'].sentiment + y[day]['positive'].count * y[day]['positive'].sentiment) / (y[day]['negative'].count + y[day]['positive'].count + y[day]['neutral'].count));		    
-	    }
-	    
-	    var x = [14,15,16,17,18,19,20,21,22]
-	    
-	    TESTER = document.getElementById('graph');
-	    Plotly.purge(TESTER);
-	    Plotly.plot( TESTER, [{
-	    x: x,
-	    y: y_avg,}], {title: short_labels[news_org_loc] + ' news over the week for Trump'})
-	    
-	    });
-	    };
-	    
-	    
-	    function positive_height(d) {
-	    total_count = d.positive.count + d.neutral.count + (d.negative.count);
-	    if (total_count == 0) {
-	    return 0;
-	    }
-	    return normalized_sentiment(d.positive.sentiment) * (d.positive.count / total_count) * 200;
-	    }
-	    function neutral_height(d) {
-	    total_count = d.positive.count + d.neutral.count + (d.negative.count);
-	    if (total_count == 0) {
-	    return 0;
-	    }
-	    return (0.37 * d.neutral.count / total_count) * 200;
-	    }
-	    function negative_height(d) {
-	    total_count = d.positive.count + d.neutral.count + (d.negative.count);
-	    if (total_count == 0) {
-	    return 0;
-	    }
-	    return normalized_sentiment(d.negative.sentiment) * (d.negative.count / total_count) * 200;
-	    }
-	    function normalized_sentiment(sentiment) {
-	       var max_sent = 9.72;
-	       var min_sent = -17.44;
-	       return (sentiment - min_sent) / (max_sent - min_sent);
-	    }
-	    function normalized_sentiment_neutral(sentiment) {
-	       var mean_sent = 0.037;
-	     var std_sent = 0.328;
-	       return (sentiment - mean_sent) / std_sent;
-	    } 
-	  
-	</script>
+       function graph_news_org(news_org_loc){
+	   
+	   var y=[];
+	   d3.json('dataset_with_time.json',function(dataset){
+	       data=dataset	     
+	       for (var day in data['Donald Trump'].date_info){     	      
+		   y.push(data['Donald Trump'].date_info[day]['daily_info'][news_org_loc]); //0th index is abc news
+	       }
+	       
+	       var y_avg=[];
+	       
+	       for (var day in y){
+		   //get average sentiment for this day
+		   y_avg.push((y[day]['negative'].count * y[day]['negative'].sentiment + y[day]['positive'].count * y[day]['positive'].sentiment) / (y[day]['negative'].count + y[day]['positive'].count + y[day]['neutral'].count));		  
+	       }
+	       
+	       var x = [14,15,16,17,18,19,20,21,22]
+	       
+	       TESTER = document.getElementById('plot_container');
+	       console.log(TESTER);
+	       //Plotly.purge(TESTER);
+	       Plotly.plot( TESTER, [{
+		   x: x,
+		   y: y_avg,}],  {
+		       margin: { t: 0 } } );//{title: short_labels[news_org_loc] + ' news over the week for Trump'})
+	       
+	   });
+       };
+       
+       
+       function positive_height(d) {
+	   total_count = d.positive.count + d.neutral.count + (d.negative.count);
+	   if (total_count == 0) {
+	       return 0;
+	   }
+	   return normalized_sentiment(d.positive.sentiment) * (d.positive.count / total_count) * 200;
+       }
+       function neutral_height(d) {
+	   total_count = d.positive.count + d.neutral.count + (d.negative.count);
+	   if (total_count == 0) {
+	       return 0;
+	   }
+	   return (0.37 * d.neutral.count / total_count) * 200;
+       }
+       function negative_height(d) {
+	   total_count = d.positive.count + d.neutral.count + (d.negative.count);
+	   if (total_count == 0) {
+	       return 0;
+	   }
+	   return normalized_sentiment(d.negative.sentiment) * (d.negative.count / total_count) * 200;
+       }
+       function normalized_sentiment(sentiment) {
+	   var max_sent = 9.72;
+	   var min_sent = -17.44;
+	   return (sentiment - min_sent) / (max_sent - min_sent);
+       }
+       function normalized_sentiment_neutral(sentiment) {
+	   var mean_sent = 0.037;
+	   var std_sent = 0.328;
+	   return (sentiment - mean_sent) / std_sent;
+       } 
+       
+      </script>
     </body>
 </html>
-
-
-<!-- 	  //credit http://samherbert.net/svg-loaders/ for the startup image -->
-<!-- 	  /* -->
-<!-- 	   var im = g.append('svg:image') -->
-<!-- 	   .attr('xlink:href','js/svg_loading/svg-loaders/circles.svg') -->
-<!-- 	   .attr('x','50%') -->
-<!-- 	   .attr('y','50%') -->
-<!-- 	   .attr('width',200) -->
-<!-- 	   .attr('height',200); -->
-<!-- 	  */ -->
-
-<!--      //var url = 'https://www.cs.tufts.edu/~mrussell/vis/test_dataset.json' -->
-
-<!--      /* -->
-<!--       * function call_ajax(query){ -->
-<!-- 	$.ajax({ -->
-<!-- 	crossOrigin: true, -->
-<!-- 	url: env.ngrok_ip + '/get_saved', -->
-<!-- 	type: "POST", -->
-<!-- 	data: 'name='+query, -->
-<!-- 	success: organize_data() -->
-<!-- 	break; -->
-
-<!--       * };  */ -->
-<!-- daterangepicker from : http://www.daterangepicker.com/
-     <!--  <script type="text/javascript" src="https://cdn.jsdelivr.net/momentjs/latest/moment.min.js"></script>
-     <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/daterangepicker/daterangepicker.min.js"></script>
-     <link rel="stylesheet" type="text/css" href="https://cdn.jsdelivr.net/npm/daterangepicker/daterangepicker.css" />
-
-
-     <input type="text" name="daterange" value="01/01/2018 - 01/15/2018" />
-
-     <script>
-     $(function() {
-     $('input[name="daterange"]').daterangepicker({
-     opens: 'left'
-     }, function(start, end, label) {
-     console.log("A new date selection was made: " + start.format('YYYY-MM-DD') + ' to ' + end.format('YYYY-MM-DD'));
-     });
-     });
-     </script>
-
-
-
--->
 
