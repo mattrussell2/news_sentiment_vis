@@ -15,29 +15,29 @@
       <svg width=100% height=100%></svg>
       <script>       
 
-      var search_container = d3.select("body").append("div")
-        .style('position','absolute')
-        .style('top', '2%')
-        .style('left', '76%')
-        .style('transform','translate(' + .75*width + ',0)')
+       var search_container = d3.select("body").append("div")
+				.style('position','absolute')
+				.style('top', '2%')
+				.style('left', '76%')
+				.style('transform','translate(' + .75*width + ',0)')
 
-      search_container.append("input")
-        .attr("type", "text")
-        .attr("placeholder", "Search...")
-        .attr("float", "right")
-        .attr("padding", "6px")
-        .attr("border", "none")
-        .attr("margin-top", "8px")
-        .attr("margin-right", "16px")
-        .attr("font-size", "17px")
-        .attr("size", 30)
-        .attr("onkeydown", "search(this)");
+       search_container.append("input")
+				.attr("type", "text")
+				.attr("placeholder", "Search...")
+				.attr("float", "right")
+				.attr("padding", "6px")
+				.attr("border", "none")
+				.attr("margin-top", "8px")
+				.attr("margin-right", "16px")
+				.attr("font-size", "17px")
+				.attr("size", 30)
+				.attr("onkeydown", "search(this)");
 
-      function search(ele) {
-        if(event.key === 'Enter') {
-            alert(ele.value);
-        }
-      }
+       function search(ele) {
+           if(event.key === 'Enter') {
+               alert(ele.value);
+           }
+       }
 
        var width = $(window).width();
        var height = $(window).height();
@@ -75,7 +75,7 @@
 			      .style('left',function() { return '15%'; }); 
        
 
-     var short_labels = ['ABC','BBC','BBN','BI','BZFD','CBC','CBS','CNBC','CNN','FT','FOX','MSNBC','NBC','POL','ECON','HUFF','NYT','WSJ','WASH','USA'];
+       var short_labels = ['ABC','BBC','BBN','BI','BZFD','CBC','CBS','CNBC','CNN','FT','FOX','MSNBC','NBC','POL','ECON','HUFF','NYT','WSJ','WASH','USA'];
 
        var entities=['Donald Trump','Khashoggi',"U.S.",'Facebook','Amazon'];
        var entity = entities[0];
@@ -108,24 +108,26 @@
 		   });
 
        function update_sentiment(name) {
-         d3.selectAll('text').style('visibility','visible');
-         console.log(data);
-         var axis = d3.selectAll(".axis")
-         d3.selectAll(".pos")
-          .data(data[name].total_info)
-          .transition().attr("height", positive_height)
-          .attr("y", function(d) {
-            return bar_container.attr('height') * .3 - 30 - positive_height(d);
-          });
-         d3.selectAll(".neg")
-           .data(data[name].total_info)
-           .transition().attr("height", negative_height);
-         d3.selectAll(".neu")
-           .data(data[name].total_info)
-           .transition().attr("height", neutral_height)
-           .attr("y", function(d) {
-               return bar_container.attr('height') * .75 - 30 - neutral_height(d);
-           });
+           d3.selectAll('text').style('visibility','visible');
+           console.log(data);
+           var axis = d3.selectAll(".axis")
+           d3.selectAll(".pos")
+			.data(data[name].total_info)
+			.transition().attr("height", positive_height)
+			.attr("y", function(d) {
+			    return bar_container.attr('height') * .3 - 30 - positive_height(d);
+			});
+           d3.selectAll(".neg")
+             .data(data[name].total_info)
+             .transition().attr("height", negative_height);
+           d3.selectAll(".neu")
+             .data(data[name].total_info)
+             .transition().attr("height", neutral_height)
+             .attr("y", function(d) {
+		 return bar_container.attr('height') * .75 - 30 - neutral_height(d);
+             });
+	   curr_entity=name
+	   graph_news_org(curr_news_source,curr_entity);
        }
 
        //inside each top entity object, append the name
@@ -258,8 +260,7 @@
 		 ;});	  
        }	 
        
-       function graph_news_org(news_org_loc,entity_name){
-	   
+       function graph_news_org(news_org_loc,entity_name){	   
 	   var y=[];
 	   d3.json('dataset_with_time2.json',function(dataset){
 	       data=dataset
@@ -276,7 +277,6 @@
 
 		   var normalized_pos = normalized_sentiment(y[day]['positive'].sentiment);
 		   var normalized_neg = normalized_sentiment(y[day]['negative'].sentiment);
-
 		   console.log(normalized_pos);
 		   console.log(normalized_neg);
 		   y_avg.push((y[day]['negative'].count * normalized_neg + y[day]['positive'].count * normalized_pos) / (y[day]['negative'].count + y[day]['positive'].count + y[day]['neutral'].count));		  
@@ -301,51 +301,54 @@
 	   total_count = d.positive.count + d.neutral.count + (d.negative.count);
 	   if (total_count == 0) {
 	       return 0;
-	   }
-	   return normalized_sentiment(d.positive.sentiment) * (d.positive.count / total_count) * 200;
+	   }	
+	   return normalized_sentiment(d.positive.sentiment) * (d.positive.count / total_count) * 50;
        }
        function neutral_height(d) {
 	   total_count = d.positive.count + d.neutral.count + (d.negative.count);
 	   if (total_count == 0) {
 	       return 0;
 	   }
-	   return (0.37 * d.neutral.count / total_count) * 200;
+	   return (0.37 * d.neutral.count / total_count) * 50;
        }
        function negative_height(d) {
 	   total_count = d.positive.count + d.neutral.count + (d.negative.count);
 	   if (total_count == 0) {
 	       return 0;
 	   }
-	   return normalized_sentiment(d.negative.sentiment) * (d.negative.count / total_count) * 200;
+	   return normalized_sentiment(d.negative.sentiment) * -1 * (d.negative.count / total_count) * 50;
        }
        function normalized_sentiment(sentiment) {
 	   var max_sent = 9.72;
 	   var min_sent = -17.44;
-	  // var avg_sent = 
+	   var avg_sent = -0.0335;
+	   var std_sent = 0.227;
 	   //mean normalization
-	   //return (sentiment - avg_sent) / (max_sent - min_sent);
-	   return (sentiment - min_sent) / (max_sent - min_sent);// this is for min-max scaling
+	   return ( sentiment - avg_sent ) / std_sent;
+	   //  return (sentiment - avg_sent) / (max_sent - min_sent);
+	   //return (sentiment - min_sent) / (max_sent - min_sent);// this is for min-max scaling
        }
        function normalized_sentiment_neutral(sentiment) {
-	   var mean_sent = 0.037;
-	   var std_sent = 0.328;
+	   var max_sent = 40.3;
+	   var min_sent = 0;
+	   var avg_sent = 0.037;
+	   //	   return (sentiment - avg_sent) / (max_sent - min_sent);
+	   //	   var std_sent = 0.328;	  
 	   return (sentiment - mean_sent) / std_sent;
        }
 
        function search(ele) {
-         if(event.key === 'Enter') {
-             keys = Object.keys(data);
-             console.log(keys);
-             for (i = 0; i < keys.length; i++) {
+           if(event.key === 'Enter') {
+               keys = Object.keys(data);
+               console.log(keys);
+               for (i = 0; i < keys.length; i++) {
 
-               if (keys[i].toLowerCase().includes(ele.value.toLowerCase())) {
-                   update_sentiment(keys[i]);
-		   curr_entity=keys[i]
-		   graph_news_org(curr_news_source,curr_entity);
-                 break;
+		   if (keys[i].toLowerCase().includes(ele.value.toLowerCase())) {
+                       update_sentiment(keys[i]);		      
+                       break;
+		   }
                }
-             }
-         }
+           }
        }
 
       </script>
