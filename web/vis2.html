@@ -34,11 +34,11 @@
 				.attr("onkeydown", "search(this)");
 
        function search(ele) {
-           if(event.key === 'Enter') {
+           if(event.key === 'Enter') {	       
                alert(ele.value);
            }
        }
-
+       var background_color = '#e6f2ff'//"#5c8ad6";
        var width = $(window).width();
        var height = $(window).height();
        var svg = d3.select("svg")
@@ -51,7 +51,7 @@
 			      .attr('height',.65*height);
 
        bar_container.append('rect')
-		    .attr('fill','#e6f2ff')//'#fcffff')
+		    .attr('fill',background_color)
 		    .attr('width',bar_container.attr('width'))
 		    .attr('height',bar_container.attr('height'));
 
@@ -62,7 +62,7 @@
        entity_container.append('rect')
 				 .attr('width',entity_container.attr('width'))
 				 .attr('height',entity_container.attr('height'))
-				 .attr('fill','#e6f2ff');
+				 .attr('fill',background_color);
        entity_container.append('rect')
 		       .attr("width", 0.1)
 		       .attr("height", "100%")
@@ -71,18 +71,27 @@
 
        var plot_container = d3.select('body').append('div')
 
-   /*    plot_container.append('svg').append('rect')
-			      .attr('fill','#e6f2ff')//'#fcffff')
-			      .attr('width',plot_container.attr('width'))
-			      .attr('height',plot_container.attr('height'));*/
+       /*    plot_container.append('svg').append('rect')
+	  .attr('fill','#e6f2ff')//'#fcffff')
+	  .attr('width',plot_container.attr('width'))
+	  .attr('height',plot_container.attr('height'));*/
 
        plot_container.attr('id','plot_container')
-		     .style('transform','translate(0,' + .65*height + ')')
-		     .style('width',.75*width)
-		     .style('height','35%')//.35*height)
-		     .style('position','absolute')
-		     .style('top',function() { return '65%'; })
-		     .style('left',function() { return '15%'; });
+			      .style('transform','translate(0,' + .65*height + ')')
+			      .style('width',.75*width)
+			      .style('height','35%')//.35*height)
+			      .style('position','absolute')
+			      .style('top',function() { return '65%'; })
+			      .style('left',function() { return '15%'; });
+
+       var erase_button = plot_container.attr("width", plot_container.attr('width'))
+					.attr("height", plot_container.attr('height'))
+       
+
+       plot_container.on('click', function() { Plotly.purge(TESTER);});
+       
+       
+       
 
 
        var short_labels = ['ABC','BBC','BBN','BI','BZFD','CBC','CBS','CNBC','CNN','FT','FOX','MSNBC','NBC','POL','ECON','HUFF','NYT','WSJ','WASH','USA'];
@@ -115,6 +124,7 @@
 		       d3.select(this).style("cursor","pointer");
 		   })
 		   .on("click", function(d,i) {
+		       Plotly.purge(TESTER);		       		       		   
 		       var name = entities[i]
 		       update_sentiment(name);
 		   });
@@ -138,7 +148,7 @@
               .attr("y", function(d) {
 	      return bar_container.attr('height') * .75 - 30 - neutral_height(d);
               });*/
-	   curr_entity=name
+	   curr_entity=name;
 	   graph_news_org(curr_news_source,curr_entity);
        }
 
@@ -375,6 +385,12 @@
   	  .attr("fill", 'blue');*/
        ////////COMMENT ENDS HERE
 
+       /*   var erase_plot = plot_container.append('rect')
+	  .attr('width','20px')
+	  .attr('height','10px')
+	  .attr('x', 0)
+	  .attr('y','0');*/
+       
        function color_polarized_text(y){
 	   d3.selectAll(".polarized-source-text")
 	     .data(data[curr_entity].total_info)
@@ -400,26 +416,27 @@
 		   //get average sentiment for this day
 
 		   var normalized_pos = normalized_sentiment(y[day]['positive'].sentiment);
-		   var normalized_neg = normalized_sentiment(y[day]['negative'].sentiment);
-		   console.log(normalized_pos);
-		   console.log(normalized_neg);
+		   var normalized_neg = normalized_sentiment(y[day]['negative'].sentiment);		  
 		   y_avg.push((y[day]['negative'].count * normalized_neg + y[day]['positive'].count * normalized_pos) / (y[day]['negative'].count + y[day]['positive'].count + y[day]['neutral'].count));
 	       }
 
 	       var x = [14,15,16,17,18,19,20,21,22]
 
 	       TESTER = document.getElementById('plot_container');
-	       console.log(TESTER);
-	       Plotly.purge(TESTER);
+	       
+	       //Plotly.purge(TESTER);
 	       Plotly.plot( TESTER, [{
 		   x: x,
-		   y: y_avg,}], {title: short_labels[news_org_loc] + ' Daily Average Sentiment From 11/14-11/22 for ' + entity_name});
-
-	       //{ margin: { t: 0, l:0, r:0 },
+		   y: y_avg,
+		   name: short_labels[news_org_loc]}], {title: 'Daily Average Sentiment From 11/14-11/22 for ' + entity_name});	      
+	       
+	       
 
 	   });
 	   title_text.text('Average Positive and Negative Sentiment For ' + curr_entity)
        };
+
+       
 
 
        function positive_height(d) {
