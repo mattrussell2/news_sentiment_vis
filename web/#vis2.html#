@@ -38,7 +38,7 @@
                alert(ele.value);
            }
        }
-       var background_color = '#e6f2ff'//"#5c8ad6";
+       var background_color = '#2F4354'//"#5c8ad6";
        var width = $(window).width();
        var height = $(window).height();
        var svg = d3.select("svg")
@@ -130,7 +130,7 @@
 		   });
 
        function update_sentiment(name) {
-          // d3.selectAll('text').style('visibility','visible');
+           // d3.selectAll('text').style('visibility','visible');
            console.log(data);
            var axis = d3.selectAll(".axis")
            d3.selectAll(".pos")

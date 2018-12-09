@@ -1,0 +1,20 @@
+<!DOCTYPE html>
+<html>
+    <head>
+	<link rel="stylesheet" href="css/styles.css">
+	<script src="js/env.js"></script>
+	<script lang="javascript" src="js/jquery-3.1.0.min.js"></script>
+	<script lang="javascript" src="js/d3.v4.min.js"></script>
+	<script lang="javascript" src="js/data.js"></script>
+	<script type="text/application/javascript/json" src="js/jquery.ajax-cross-origin.min.js"></script>
+
+	<script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
+
+    </head>
+    <body>
+	<svg width=100% height=100%></svg>
+	<script>
+
+	</script>
+    </body>
+</html>

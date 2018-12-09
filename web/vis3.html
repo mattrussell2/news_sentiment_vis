@@ -1,0 +1,181 @@
+<!DOCTYPE html>
+<html>
+    <head>
+	<link rel="stylesheet" href="css/styles.css">
+	<script src="js/env.js"></script>
+	<script lang="javascript" src="js/jquery-3.1.0.min.js"></script>
+	<script lang="javascript" src="js/d3.v4.min.js"></script>
+	<script lang="javascript" src="js/data.js"></script>
+	<script type="text/application/javascript/json" src="js/jquery.ajax-cross-origin.min.js"></script>
+
+	<script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
+
+    </head>
+    <body bgcolor="#2F4354">
+	<svg width=100% height=100%></svg>
+	<script>
+	 var width = $(window).width();
+	 var height = $(window).height();
+
+	 var all_labels = ['ABC','BBC','BBN','BI','BZFD','CBC','CBS','CNBC','CNN','FT','FOX','MSNBC','NBC','POL','ECON','HUFF','NYT','WSJ','WASH','USA'];
+
+	 var labels = ['ABC','BBC','BBN','CBS','CNBC','CNN','FOX','MSNBC','NBC','HUFF','NYT','WSJ','WASH'];
+
+	 var dates = ['2018-11-14','2018-11-15','2018-11-16','2018-11-17','2018-11-18','2018-11-19','2018-11-20','2018-11-21','2018-11-22']
+
+	 var red = '#D69398';
+	 var green = '#9CE0E5';
+	 var blue = '#70BAE5';
+	 var searchbar;
+	 var bargraph;
+	 var linegraph;
+	 
+	 var curr_entity = 'Donald Trump';
+	 var selected_news_orgs = [];
+	 var data;
+	 
+	 d3.json('dataset_with_time2.json',function(dataset){
+	     data = dataset;
+	     initialize_graphs();	     
+	 });
+	 
+	 function get_avg_sentiments(name, polarity){
+	     var avg_sentiments = [];
+	     var total_info = data[name].total_info;
+	     for (var i=0; i < total_info.length; i++){
+		 var d = total_info[i];
+		 total_count = d.positive.count + d.neutral.count + d.negative.count;
+		 sentiment_info = d[polarity]
+		 norm_sentiment = normalized_sentiment(sentiment_info.sentiment);
+		 scaled_sentiment = sentiment_info.count * norm_sentiment / total_count;
+		 avg_sentiments.push(scaled_sentiment);			 
+	     }	   
+	     return avg_sentiments;
+	 }
+
+	 function get_weekly_sentiments(name, news_org){
+	     var weekly_sentiments = [];
+	     var news_org_loc = all_labels.indexOf(news_org);
+	     var date_info = data[name].date_info;
+
+	     for (var i=0; i < date_info.length; i++){
+		 var day = date_info[i].daily_info[news_org_loc];		
+		 var normalized_pos = normalized_sentiment(day.positive.sentiment)
+		 var normalized_neg = normalized_sentiment(day.negative.sentiment)
+		 var avg_sentiment = (day.negative.count * normalized_neg + day.positive.count * normalized_pos) / (day.negative.count + day.positive.count + day.neutral.count);
+		 weekly_sentiments.push(avg_sentiment);			 
+	     }	   
+	     return weekly_sentiments;
+	 }
+
+	 function normalized_sentiment(sentiment) {
+	     var max_sent = 9.72;
+	     var min_sent = -17.44;
+	     var avg_sent = -0.0335;
+	     var std_sent = 0.227;
+	     //mean normalization
+	     return ( sentiment - avg_sent ) / std_sent;	    
+	 }
+	 
+	 function initialize_graphs(){
+	     searchbar = d3.select("body").append("div")
+			   .style('position','absolute')
+			   .style('top', '2%')
+			   .style('left', '76%')
+			   .style('transform','translate(' + .75*width + ',0)')
+	     
+	     bargraph = d3.select('body').append('div');
+	     linegraph = d3.select('body').append('div');
+	     
+	     bargraph.attr('id','bargraph')
+		     .style('transform','translate(0,' + .3*height + ')')
+		     .style('width',"90%")
+		     .style('height','55%')//.35*height)
+		     .style('position','absolute')
+		     .style('top',function() { return '.3%'; })
+		     .style('left',function() { return '10%'; });
+
+	     linegraph.attr('id','linegraph')
+		      .style('transform','translate(0,' + .7*height + ')')
+		      .style('width',"90%")
+		      .style('height','35%')//.35*height)
+		      .style('position','absolute')
+		      .style('top',function() { return '65%'; })
+		      .style('left',function() { return '10%'; });	 
+	     
+	     var trace1 = {
+		 x: labels,
+		 y: get_avg_sentiments(curr_entity,'positive'),
+		 name: 'average positive sentiment',	     
+		 marker: {color: green},
+		 type: 'bar'
+	     };
+	     
+	     var trace2 = {
+		 x: labels,
+		 y: get_avg_sentiments(curr_entity,'negative'),
+		 name: 'average negative sentiment',
+		 marker: {color: red},
+		 type: 'bar',
+	     };
+	     
+	     var traces = [trace1,trace2];
+	     var layout = {barmode: 'relative', paper_bgcolor: 'rgba(0,0,0,0)',
+			   plot_bgcolor: 'rgba(0,0,0,0)',
+			   font: {color: 'white'}};
+	     Plotly.plot('bargraph',traces, layout);	     
+	     Plotly.plot('linegraph' , [],
+			 {
+			     title: 'Daily Average Sentiment From 11/14-11/22',
+			     xaxis: {range: ['2018-11-14','2018-11-22'] },
+			     showlegend: true,
+			     paper_bgcolor: 'rgba(0,0,0,0)',
+			     plot_bgcolor: 'rgba(0,0,0,0)',
+			     font: {color: 'white'}
+			 })
+	     plot_linegraph('CNN');
+	     
+	     document.getElementById('bargraph').on('plotly_click', function(data){
+		 var pts = '';
+		 var news_org = data.points[0].x;		
+		 plot_linegraph(news_org);		 
+	     });		 
+	 }
+
+	 function plot_linegraph(news_org){
+	     if (selected_news_orgs.includes(news_org)){
+		 var i = selected_news_orgs.indexOf(news_org);
+		 Plotly.deleteTraces('linegraph', i);
+		 selected_news_orgs.splice(i,1);
+		 console.log(selected_news_orgs);
+		 return;
+	     }
+	     selected_news_orgs.push(news_org);
+	     sentiment_data = get_weekly_sentiments(curr_entity,news_org);
+	     console.log(sentiment_data);
+	     Plotly.addTraces('linegraph', {x: dates, y:sentiment_data,name:news_org});
+	 }
+	 
+	 
+	 
+	 function update_bargraph(name){
+	     for (var i=0; i<data[name].total_info.length; i++){
+		 obj = data[name].total_info[i]
+		 console.log(obj);
+	     }
+	 }
+	</script>
+    </body>
+</html>
+<!-- 
+     /*		 Plotly.animate('linegraph',{
+     data: [{y:[2,3,4,5]}]
+     }, {
+     transition:{
+     duration: 500,
+     easing: 'cubic-in-out'
+     },
+     frame:{
+     duration: 500
+     }
+     });*/ -->
