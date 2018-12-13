@@ -16,8 +16,9 @@
 	<script>
 	  var width = $(window).width();
 	  var height = $(window).height();
-	  
-	  
+
+	  //static colors for line chart so plotly doesn't swap them on removal.
+	  var colors = ['#256390','#2CA02C','#D7731B','#D62728','#9467BD','#35C4C50','#E377C2']
 	  var all_labels = ['ABC','BBC','BBN','BI','BZFD','CBC','CBS','CNBC','CNN','FT','FOX','MSNBC','NBC','POL','ECON','HUFF','NYT','WSJ','WASH','USA'];
 
 	  var labels = ['ABC','BBC','BBN','CBS','CNBC','CNN','FOX','MSNBC','NBC','HUFF','NYT','WSJ','WASH'];
@@ -32,12 +33,14 @@
 	  var searchbar;
 	  var bargraph;
 	  var linegraph;
+	  var article_explorer;
 	  var not_found_text;
 	  
 	  var selected_news_orgs = [];
 	  var data;
 	  
 
+		  
 	  d3.json('dataset_with_time2.json',function(dataset){
 	      data = dataset;
 	      initialize_graphs();
@@ -67,12 +70,15 @@
 		  var day = date_info[i].daily_info[news_org_loc];
 		  var normalized_pos = normalized_sentiment(day.positive.sentiment)
 		  var normalized_neg = normalized_sentiment(day.negative.sentiment)
-		  var avg_sentiment = (day.negative.count * normalized_neg + day.positive.count * normalized_pos) / (day.negative.count + day.positive.count + day.neutral.count);
+		  var total_count = day.negative.count + day.positive.count + day.neutral.count
+		  //neutral counts as 0 for score, so no need to add to numerator.
+		  var avg_sentiment = (day.negative.count * normalized_neg + day.positive.count * normalized_pos) / total_count;
 		  weekly_sentiments.push(avg_sentiment);
 	      }
 	      return weekly_sentiments;
 	  }
-	  
+
+	  //these values have been calculated offline
 	  function normalized_sentiment(sentiment) {
 	      var max_sent = 9.72;
 	      var min_sent = -17.44;
@@ -83,31 +89,50 @@
 	  }
 	  
 	  function initialize_graphs(){
+
+	      article_explorer = d3.select('body').append('svg');
+	      article_explorer.attr('id','article_explorer')
+		  .style('transform','translate(0,' + .3*height + ')')
+		  .style('width','25%')
+		  .style('height','100%')
+		  .style('position','absolute')
+		  .style('top', '0%')
+		  .style('left','0%')
+
+	      article_explorer.append('text')	          		 
+		  .attr('x', '50%')
+		  .attr('y','5%')
+		  .text('Article Explorer')
+		  .attr('fill','white')
+		  .attr('font-size','25px')
+		  .attr('text-anchor','middle')
 	      
 	      bargraph = d3.select('body').append('div');
 	      linegraph = d3.select('body').append('div');
 	      
 	      bargraph.attr('id','bargraph')
-		  .style('transform','translate(0,' + .3*height + ')')
-		  .style('width',"90%")
+		  .style('transform','translate(' + .25*width + ',' + .3*height + ')')
+		  .style('width',"75%")
 		  .style('height','50%')
 		  .style('position','absolute')
 		  .style('top',function() { return '.3%'; })
-		  .style('left',function() { return '10%'; });
+		  .style('left',function() { return '25%'; });
 	      
 	      linegraph.attr('id','linegraph')
-		  .style('transform','translate(0,' + .7*height + ')')
-		  .style('width',"90%")
+		  .style('transform','translate(' + .25*width + ',' + .7*height + ')') //0,.7*height
+		  .style('width',"75%")
 		  .style('height','45%')
 		  .style('position','absolute')
 		  .style('top',function() { return '55%'; })
-		  .style('left',function() { return '10%'; });
+		  .style('left',function() { return '25%'; });
 	      
 	      Plotly.plot('linegraph' , [],
 			  {
-			      title: 'Daily Average Sentiment From 11/14-11/22',
-			      xaxis: {range: ['2018-11-14','2018-11-22'] },
+			      title: 'Overall Average Sentiment From 11/14-11/22',
+			      xaxis: {range: ['2018-11-14','2018-11-22'],showline:false,showgrid:false,autotick:true },
+			      yaxis: {showline:false,showgrid:true,showtick:true,nticks:5},
 			      showlegend: true,
+			      legend: { x:-5 },
 			      paper_bgcolor: 'rgba(0,0,0,0)',
 			      plot_bgcolor: 'rgba(0,0,0,0)',
 			      font: {color: 'white'}
@@ -115,7 +140,6 @@
 	      
 	      add_to_linegraph('Donald Trump','CNN');
 	      plot_bargraph('Donald Trump');
-	      
 	      
 	      document.getElementById('bargraph').on('plotly_click', function(data){
 		  var news_org = data.points[0].x;
@@ -186,10 +210,10 @@
 	      if (selected_news_orgs.includes(news_org)){
 		  remove_from_linegraph(news_org);
 		  return;
-	      }
-	      selected_news_orgs.push(news_org);
+	      }	      
 	      sentiment_data = get_weekly_sentiments(name,news_org);
-	      Plotly.addTraces('linegraph', [{x: dates, y:sentiment_data, name:news_org}]);
+	      Plotly.addTraces('linegraph', [{x: dates, y:sentiment_data, name:news_org, marker: { color: colors[selected_news_orgs.length] }}]);
+	      selected_news_orgs.push(news_org);
 	  }
 	  
 	  function plot_bargraph(name){
@@ -220,14 +244,16 @@
 	      var traces = [trace1,trace2];
 	      if (!first_time){
 		  Plotly.addTraces('bargraph',[trace1,trace2]);
-		  Plotly.relayout('bargraph',{title: 'Average Sentiment From 11/14-11/22 for ' + name});
+		  Plotly.relayout('bargraph',{title: 'Positive and Negative Average Sentiment By News Organization From 11/14-11/22 for ' + name});
 		  return;
 	      }
 	      else{
 		  var layout = {barmode: 'relative', paper_bgcolor: 'rgba(0,0,0,0)',
 				plot_bgcolor: 'rgba(0,0,0,0)',
 				font: {color: 'white'},
-			        title: 'Average Sentiment From 11/14-11/22 for ' + name};
+				legend: { x:0, y:1.1 },
+				yaxis: {range: [-5,5]},
+			        title: 'Positive and Negative Average Sentiment By News Organization From 11/14-11/22 for ' + name};
 		  Plotly.plot('bargraph',traces, layout);		
 	      }
 	  }	 
