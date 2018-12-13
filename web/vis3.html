@@ -87,7 +87,8 @@
 	      //mean normalization
 	      return ( sentiment - avg_sent ) / std_sent;
 	  }
-	  
+
+	 
 	  function initialize_graphs(){
 
 	      article_explorer = d3.select('body').append('svg');
@@ -141,11 +142,10 @@
 	      add_to_linegraph('Donald Trump','CNN');
 	      plot_bargraph('Donald Trump');
 	      
-	      document.getElementById('bargraph').on('plotly_click', function(data){
+	      document.getElementById('bargraph').on('plotly_click',  function(data){
 		  var news_org = data.points[0].x;
 		  add_to_linegraph('Donald Trump',news_org);
 	      });
-	      
 	      searchbar = d3.select("body").append("div")
 		  .style('position','absolute')
 		  .style('top', '50%')
@@ -168,25 +168,30 @@
 	      if(event.key === 'Enter') {
 		  keys = Object.keys(data);
 		  found = false;
-		  for (i = 0; i < keys.length; i++) {			 
+		  for (i = 0; i < keys.length; i++) {
 		      if (keys[i].toLowerCase().includes(ele.value.toLowerCase())) {
 			  plot_bargraph(keys[i]);
-			  //doesn't automatically replace, so have to set to null first)
-			  bargraph.on('plotly_click',null); 
-			  bargraph.on('plotly_click', function(data){
+			  //doesn't automatically replace, so have to remove listener first)
+			  document.getElementById('bargraph').removeAllListeners('plotly_click');	
+			  document.getElementById('bargraph').on('plotly_click', function(data){			    
 			      var news_org = data.points[0].x;
-			      add_to_linegraph(keys[i],news_org);
-			  });			  
+			      add_to_linegraph(keys[i],news_org);			      
+			  });
 			  var temp_news_orgs=[];
+			  //have to go in this order to preserve orgs' color
 			  for (var j=0; j<selected_news_orgs.length; j++){
 			      news_org = selected_news_orgs[j];
 			      temp_news_orgs.push(news_org);			      
 			  }
 			  for (var j=0; j<temp_news_orgs.length; j++){			      
 			      news_org = temp_news_orgs[j];
-			      remove_from_linegraph(news_org);
-			      add_to_linegraph(keys[i],news_org);
+			      remove_from_linegraph(news_org);			      
 			  }
+			  for (var j=0; j<temp_news_orgs.length; j++){			      
+			      news_org = temp_news_orgs[j];
+			      add_to_linegraph(keys[i],news_org);		      
+			  }
+			 
 			  found = true;
 			  break;
 		      }
@@ -210,7 +215,7 @@
 	      if (selected_news_orgs.includes(news_org)){
 		  remove_from_linegraph(news_org);
 		  return;
-	      }	      
+	      }
 	      sentiment_data = get_weekly_sentiments(name,news_org);
 	      Plotly.addTraces('linegraph', [{x: dates, y:sentiment_data, name:news_org, marker: { color: colors[selected_news_orgs.length] }}]);
 	      selected_news_orgs.push(news_org);
