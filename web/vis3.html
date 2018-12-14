@@ -244,17 +244,17 @@
 	 };
 	 function search(ele) {
 	     if(event.key === 'Enter') {
-		 keys = Object.keys(data);
-		 found = false;
-		 for (i = 0; i < keys.length; i++) {
-		     if (keys[i].toLowerCase().includes(ele.value.toLowerCase())) {
-			 plot_bargraph(keys[i]);
-			 refresh_linegraph(keys[i]);
-			 link_graphs(name);
+    		 keys = Object.keys(data);
+    		 found = false;
+    		 for (i = 0; i < keys.length; i++) {
+  		     if (keys[i].toLowerCase().includes(ele.value.toLowerCase())) {
+      			 plot_bargraph(keys[i]);
+      			 refresh_linegraph(keys[i]);
+      			 link_graphs(keys[i]);
 
-			 found = true;
-			 break;
-		     }
+      			 found = true;
+      			 break;
+  		     }
 		 }
 		 if (!found) {
 		     searchbar.selectAll('input').property('value',"'"+ ele.value + "' not found.");
