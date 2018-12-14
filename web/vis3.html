@@ -123,7 +123,7 @@
 				 .style('width','25%')
 				 .style('height','90%')
 				 .style('position','relative')
-				 .style('left','75%')
+				 .style('left','76%')
 				 .style('top','7%')
 
 	     searchbar.append("input")
@@ -134,8 +134,9 @@
 				 .attr("border", "none")
 				 .attr("margin-top", "8px")
 				 .attr("margin-right", "16px")
-				 .attr("font-size", "17px")
-				 .attr("size", 30)
+				 .style("font-size", "18px")
+         .style("height", "20px")
+         .style("width", "200px")
 				 .attr("onkeydown", "search(this)");
 
 
@@ -235,7 +236,7 @@
 		     }
 		 }
 		 if (!found) {
-		     searchbar.selectAll('input').property('value',"'"+ ele.value + "' not found. Please try again.");
+		     searchbar.selectAll('input').property('value',"'"+ ele.value + "' not found.");
 		 }
 	     }
 	 }
