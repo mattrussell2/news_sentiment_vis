@@ -1,5 +1,0 @@
-#!/bin/bash
-
-#setup flask
-xterm -e python webpage.py &
-
