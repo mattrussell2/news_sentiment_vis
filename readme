@@ -1,0 +1,7 @@
+#news_sentiment_vis
+
+we created an entity sentiment analysis pipeline for news media
+it can leverage google, ibm, and aylien entity sentiment apis
+
+
+
