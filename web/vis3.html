@@ -183,7 +183,7 @@
 
 	     Plotly.plot('linegraph' , [],
 			 {
-			     title: 'Overall Average Sentiment From 11/14-11/22',
+			     title: 'Average Sentiment by News Org From November 11-22, 2018',
 			     xaxis: {range: ['2018-11-14','2018-11-22'],showline:false,showgrid:false,autotick:true },
 			     yaxis: {showline:false,showgrid:true,showtick:true,nticks:5},
 			     showlegend: true,
@@ -259,7 +259,7 @@
 	     }
 	     sentiment_data = get_weekly_sentiments(name,news_org);
 	     color = colors.pop();
-	     Plotly.addTraces('linegraph', [{x: dates, y:sentiment_data, name:news_org, marker: { color: color}}]);
+	     Plotly.addTraces('linegraph', [{x: dates, y:sentiment_data, hoverinfo: 'y',name:news_org, marker: { color: color}}]);
 	     selected_news_orgs.push(news_org);
 	     selected_colors[news_org] = color
 	 }
@@ -277,6 +277,7 @@
 		 x: labels,
 		 y: get_avg_sentiments(name,'positive'),
 		 name: 'average positive sentiment',
+		 hoverinfo: 'y',
 		 marker: {color: green},
 		 type: 'bar'
 	     };
@@ -286,6 +287,7 @@
 		 y: get_avg_sentiments(name,'negative'),
 		 name: 'average negative sentiment',
 		 marker: {color: red},
+		 hoverinfo: 'y',
 		 type: 'bar',
 	     };
 
@@ -299,7 +301,8 @@
 		 var layout = {barmode: 'relative', paper_bgcolor: 'rgba(0,0,0,0)',
 			       plot_bgcolor: 'rgba(0,0,0,0)',
 			       font: {color: 'white'},
-			       legend: { x:0, y:1.1 },
+			       showlegend: false,			       
+			//       legend: { x:0, y:1.1 },
 //			       yaxis: {range: [-5,5]},
 			       title: 'Percent Positive and Negative Average Sentiment By News Organization From 11/14-11/22 for ' + name};
 		 Plotly.plot('bargraph',traces, layout);
