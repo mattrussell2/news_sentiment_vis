@@ -32,6 +32,7 @@
    var red = "#FF9398";
    var green = "#9CF0E5"
 	 var blue = '#70BAE5';
+   var white = '#EEEFFF';
 	 var searchbar;
 	 var bargraph;
 	 var linegraph;
@@ -57,7 +58,7 @@
 	      .attr('x','50%')
 	      .attr('y','50%')
 	      .style('font-size','30px')
-	      .style('fill','white')
+	      .style('fill',white)
 	      .style('text-anchor','middle');
 
 
@@ -84,19 +85,36 @@
 	     return avg_sentiments;
 	 }
 
+   function get_total_weekly_sentiments(name) {
+     var weekly_sentiments = [] // list of lists of weekly sentiment
+     for (i = 0; i < labels.length; i++) {
+       weekly_sentiments.push(get_weekly_sentiments(name, labels[i]));
+     }
+     var week_length = weekly_sentiments[0].length
+     var average_sentiments = [] // list of averages
+     for (i = 0; i < week_length; i++) {
+       var sum = 0;
+       for (j = 0; j < weekly_sentiments.length; j++) {
+         sum += weekly_sentiments[j][i];
+       }
+       average_sentiments.push(sum / weekly_sentiments.length);
+     }
+     return average_sentiments
+   }
+
 	 function get_weekly_sentiments(name, news_org){
 	     var weekly_sentiments = [];
 	     var news_org_loc = all_labels.indexOf(news_org);
 	     var date_info = data[name].date_info;
 
 	     for (var i=0; i < date_info.length; i++){
-		 var day = date_info[i].daily_info[news_org_loc];
-		 var normalized_pos = normalized_sentiment(day.positive.sentiment)
-		 var normalized_neg = normalized_sentiment(day.negative.sentiment)
-		 var total_count = day.negative.count + day.positive.count + day.neutral.count
-		 //neutral counts as 0 for score, so no need to add to numerator.
-				       var avg_sentiment = (day.negative.count * normalized_neg + day.positive.count * normalized_pos) / total_count;
-		 weekly_sentiments.push(avg_sentiment);
+    		 var day = date_info[i].daily_info[news_org_loc];
+    		 var normalized_pos = normalized_sentiment(day.positive.sentiment)
+    		 var normalized_neg = normalized_sentiment(day.negative.sentiment)
+    		 var total_count = day.negative.count + day.positive.count + day.neutral.count
+    		 //neutral counts as 0 for score, so no need to add to numerator.
+				 var avg_sentiment = (day.negative.count * normalized_neg + day.positive.count * normalized_pos) / total_count;
+		     weekly_sentiments.push(avg_sentiment);
 	     }
 	     return weekly_sentiments;
 	 }
@@ -171,14 +189,14 @@
 		      .attr('y',function(d,i) { return  y_break * i + 20; })
 		      .text(function(d) { return d.name; })
 		      .attr('font-size','16px')
-		      .attr('fill','white')
+		      .attr('fill',white)
 		      .on('click',function(d){
     			  refresh_linegraph(d.name);
     			  plot_bargraph(d.name);
-			  link_graphs(d.name);
+			      link_graphs(d.name);
 		      })
 		      .on('mouseover',function(d){
-			  d3.select(this).style('cursor','pointer');
+			      d3.select(this).style('cursor','pointer');
 		      });
 
 
@@ -210,15 +228,15 @@
 			     legend: { x:0,y:1.25 },
 			     paper_bgcolor: 'rgba(0,0,0,0)',
 			     plot_bgcolor: 'rgba(0,0,0,0)',
-			     font: {color: 'white'}
+			     font: {color: white}
 			 },{displayModeBar: false});
 
-	     add_to_linegraph('Donald Trump','CNN');
+	     add_total_to_linegraph('Donald Trump');
 	     plot_bargraph('Donald Trump');
 
 	     document.getElementById('bargraph').on('plotly_click',  function(data){
-		 var news_org = data.points[0].x;
-		 add_to_linegraph('Donald Trump',news_org);
+    		 var news_org = data.points[0].x;
+    		 add_to_linegraph('Donald Trump',news_org);
 	     });
 
 	 };
@@ -272,22 +290,28 @@
 	 function remove_from_linegraph(news_org){
 	     var i = selected_news_orgs.indexOf(news_org);
 	     if (i==-1) return;
-	     Plotly.deleteTraces('linegraph', i);
+	     Plotly.deleteTraces('linegraph', i + 1);
 	     colors.push(selected_colors[news_org]);
 	     selected_news_orgs.splice(i,1);
 	     return;
 	 }
 
+   function add_total_to_linegraph(name) {
+	     sentiment_data = get_total_weekly_sentiments(name);
+	     color = "yellow";
+	     Plotly.addTraces('linegraph', [{x: dates, y:sentiment_data, hoverinfo: 'y',name:"total average", marker: { color: color}}]);
+	 }
+
 	 function add_to_linegraph(name, news_org){
 	     if (selected_news_orgs.includes(news_org)){
-		 remove_from_linegraph(news_org);
-		 return;
+    		 remove_from_linegraph(news_org);
+    		 return;
 	     }
 	     sentiment_data = get_weekly_sentiments(name,news_org);
 	     color = colors.pop();
 	     Plotly.addTraces('linegraph', [{x: dates, y:sentiment_data, hoverinfo: 'y',name:news_org, marker: { color: color}}]);
 	     selected_news_orgs.push(news_org);
-	     selected_colors[news_org] = color
+	     selected_colors[news_org] = color;
 	 }
 
 	 function plot_bargraph(name){
@@ -326,7 +350,7 @@
 	     else{
 		 var layout = {barmode: 'relative', paper_bgcolor: 'rgba(0,0,0,0)',
 			       plot_bgcolor: 'rgba(0,0,0,0)',
-			       font: {color: 'white'},
+			       font: {color: white},
 			       showlegend: false,
 			       //       legend: { x:0, y:1.1 },
 			       //			       yaxis: {range: [-5,5]},
