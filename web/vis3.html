@@ -27,8 +27,10 @@
 
 	 var dates = ['2018-11-14','2018-11-15','2018-11-16','2018-11-17','2018-11-18','2018-11-19','2018-11-20','2018-11-21','2018-11-22']
 
-	 var red = '#D69398';
-	 var green = '#9CE0E5';
+	 //var red = '#D69398';
+	 //var green = '#9CE0E5';
+   var red = "#FF9398";
+   var green = "#9CF0E5"
 	 var blue = '#70BAE5';
 	 var searchbar;
 	 var bargraph;
@@ -226,7 +228,7 @@
 		 found = false;
 		 for (i = 0; i < keys.length; i++) {
 		     if (keys[i].toLowerCase().includes(ele.value.toLowerCase())) {
-			 plot_bargraph(keys[i]);			 
+			 plot_bargraph(keys[i]);
 			 refresh_linegraph(keys[i]);
 			 link_graphs(name);
 
@@ -247,9 +249,9 @@
 	     document.getElementById('bargraph').on('plotly_click', function(data){
 		 var news_org = data.points[0].x;
 		 add_to_linegraph(name,news_org);
-	     });	     
+	     });
 	 }
-	 
+
 	 function refresh_linegraph(name){
 
 	     var temp_news_orgs = [];
@@ -257,11 +259,11 @@
 		 news_org = selected_news_orgs[j];
 		 temp_news_orgs.push(news_org);
 	     }
-	     for (var j=temp_news_orgs.length-1;j>=0;j--){	
+	     for (var j=temp_news_orgs.length-1;j>=0;j--){
 		 news_org = temp_news_orgs[j];
 		 remove_from_linegraph(news_org);
 	     }
-	     for (var j=0;j<temp_news_orgs.length; j++){	
+	     for (var j=0;j<temp_news_orgs.length; j++){
 		 news_org = temp_news_orgs[j];
 		 add_to_linegraph(name,news_org);
 	     }
