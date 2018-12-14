@@ -95,7 +95,9 @@
      for (i = 0; i < week_length; i++) {
        var sum = 0;
        for (j = 0; j < weekly_sentiments.length; j++) {
-         sum += weekly_sentiments[j][i];
+         if (! isNaN(weekly_sentiments[j][i])) {
+           sum += weekly_sentiments[j][i];
+         }
        }
        average_sentiments.push(sum / weekly_sentiments.length);
      }
@@ -228,7 +230,7 @@
 			     legend: { x:0,y:1.25 },
 			     paper_bgcolor: 'rgba(0,0,0,0)',
 			     plot_bgcolor: 'rgba(0,0,0,0)',
-			     font: {color: white}
+			     font: {color: white},
 			 },{displayModeBar: false});
 
 	     add_total_to_linegraph('Donald Trump');
@@ -265,25 +267,25 @@
 	     //doesn't automatically replace, so have to remove listener first)
 	     document.getElementById('bargraph').removeAllListeners('plotly_click');
 	     document.getElementById('bargraph').on('plotly_click', function(data){
-		 var news_org = data.points[0].x;
-		 add_to_linegraph(name,news_org);
+    		 var news_org = data.points[0].x;
+    		 add_to_linegraph(name,news_org);
 	     });
 	 }
 
 	 function refresh_linegraph(name){
-
 	     var temp_news_orgs = [];
+       update_total_on_linegraph(name);
 	     for (var j=0;j<selected_news_orgs.length; j++){
-		 news_org = selected_news_orgs[j];
-		 temp_news_orgs.push(news_org);
+    		 news_org = selected_news_orgs[j];
+    		 temp_news_orgs.push(news_org);
 	     }
 	     for (var j=temp_news_orgs.length-1;j>=0;j--){
-		 news_org = temp_news_orgs[j];
-		 remove_from_linegraph(news_org);
+    		 news_org = temp_news_orgs[j];
+    		 remove_from_linegraph(news_org);
 	     }
 	     for (var j=0;j<temp_news_orgs.length; j++){
-		 news_org = temp_news_orgs[j];
-		 add_to_linegraph(name,news_org);
+    		 news_org = temp_news_orgs[j];
+    		 add_to_linegraph(name,news_org);
 	     }
 	 }
 
@@ -296,11 +298,43 @@
 	     return;
 	 }
 
+   function remove_total_from_linegraph() {
+      Plotly.deleteTraces('linegraph', 0);
+   }
+
    function add_total_to_linegraph(name) {
 	     sentiment_data = get_total_weekly_sentiments(name);
 	     color = "yellow";
 	     Plotly.addTraces('linegraph', [{x: dates, y:sentiment_data, hoverinfo: 'y',name:"total average", marker: { color: color}}]);
 	 }
+
+   function update_total_on_linegraph(name) {
+	     sentiment_data = get_total_weekly_sentiments(name);
+	     color = "yellow";
+       min = Math.min.apply(null,sentiment_data);
+       max = Math.max.apply(null,sentiment_data);
+       console.log(sentiment_data);
+       console.log(min);
+       console.log(max);
+	     //Plotly.animate('linegraph', [{x: dates, y:sentiment_data, hoverinfo: 'y',name:"total average", marker: { color: color}}]);
+       Plotly.animate('linegraph', {
+          data: [{y:sentiment_data, hoverinfo: 'y',name:"total average", marker: { color: color}}],
+          traces: [0],
+          layout: {
+              yaxis: {autorange: true}
+            }
+        }, {
+          transition: {
+            duration: 500,
+            easing: 'cubic-in-out'
+          },
+          frame: {
+            duration: 500
+          }
+        });
+        add_to_linegraph(name, "CNN");
+        remove_from_linegraph("CNN");
+   }
 
 	 function add_to_linegraph(name, news_org){
 	     if (selected_news_orgs.includes(news_org)){
