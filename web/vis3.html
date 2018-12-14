@@ -135,8 +135,8 @@
 				 .attr("margin-top", "8px")
 				 .attr("margin-right", "16px")
 				 .style("font-size", "18px")
-         .style("height", "20px")
-         .style("width", "200px")
+				 .style("height", "20px")
+				 .style("width", "200px")
 				 .attr("onkeydown", "search(this)");
 
 
@@ -171,7 +171,6 @@
 		      .attr('font-size','16px')
 		      .attr('fill','white')
 		      .on('click',function(d){
-    			  console.log(d.name);
     			  refresh_linegraph(d.name);
     			  plot_bargraph(d.name);
 			  link_graphs(d.name);
@@ -258,11 +257,11 @@
 		 news_org = selected_news_orgs[j];
 		 temp_news_orgs.push(news_org);
 	     }
-	     for (var j=0;j<temp_news_orgs.length;j++){
+	     for (var j=temp_news_orgs.length-1;j>=0;j--){	
 		 news_org = temp_news_orgs[j];
 		 remove_from_linegraph(news_org);
 	     }
-	     for (var j=0;j<temp_news_orgs.length;j++){
+	     for (var j=0;j<temp_news_orgs.length; j++){	
 		 news_org = temp_news_orgs[j];
 		 add_to_linegraph(name,news_org);
 	     }
