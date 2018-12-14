@@ -19,13 +19,13 @@
 
 	 //static colors for line chart so plotly doesn't swap them on removal.
 	 var colors = ['#35C4C50','#D62728','#9467BD','#E377C2','#256390','#2CA02C','#D7731B']
-	 
+
 	 var all_labels = ['ABC','BBC','BBN','BI','BZFD','CBC','CBS','CNBC','CNN','FT','FOX','MSNBC','NBC','POL','ECON','HUFF','NYT','WSJ','WASH','USA'];
 
 	 var labels = ['ABC','BBC','BBN','CBS','CNBC','CNN','FOX','MSNBC','NBC','HUFF','NYT','WSJ','WASH'];
 
 	 var labels_long_names = ['ABC News','BBC News','Breitbart News','CBS News','CNBC','CNN','Fox News','MSNBC','NBC News','The Huffington Post','The New York Times','The Wall Street Journal','The Washington Post'];
-	 
+
 	 var dates = ['2018-11-14','2018-11-15','2018-11-16','2018-11-17','2018-11-18','2018-11-19','2018-11-20','2018-11-21','2018-11-22']
 
 	 var red = '#D69398';
@@ -36,16 +36,18 @@
 	 var linegraph;
 	 var article_explorer;
 	 var not_found_text;
-	 
+
 	 var selected_news_orgs = [];
 	 var selected_colors = {}
 	 var data;
-	 
+   var top_entities;
 
-	 
 	 d3.json('dataset_with_time2.json',function(dataset){
 	     data = dataset;
-	     initialize_graphs();
+       d3.json('top500_entities.json', function(entities) {
+         top_entities = entities;
+         initialize_graphs();
+       })
 	 });
 
 	 function get_avg_sentiments(name, polarity){
@@ -62,12 +64,12 @@
 	     }
 	     return avg_sentiments;
 	 }
-	 
+
 	 function get_weekly_sentiments(name, news_org){
 	     var weekly_sentiments = [];
 	     var news_org_loc = all_labels.indexOf(news_org);
 	     var date_info = data[name].date_info;
-	     
+
 	     for (var i=0; i < date_info.length; i++){
 		 var day = date_info[i].daily_info[news_org_loc];
 		 var normalized_pos = normalized_sentiment(day.positive.sentiment)
@@ -91,13 +93,13 @@
 	     return ( sentiment - avg_sent ) / std_sent;
 	 }
 
-	 
+
 	 function initialize_graphs(){
 
 	     searchbar = d3.select('body').append("div")
 			   .style('position','absolute')
-			   .style('top', '4%')
-			   .style('left', '80%');			  
+			   .style('top', '2%')
+			   .style('left', '75%');
 
 	     //you need all of these containers to make scrollable div. sketchy...but it works
 	     entity_explorer = d3.select('body').append('div')
@@ -107,9 +109,9 @@
 				 .style('left','75%')
 				 .style('top','7%')
 
-	     entity_explorer.append("input")
+	     searchbar.append("input")
 				 .attr("type", "text")
-				 .attr("placeholder", "Donald Trump")
+				 .attr("placeholder", "Search...")
 				 .attr("float", "right")
 				 .attr("padding", "6px")
 				 .attr("border", "none")
@@ -117,9 +119,9 @@
 				 .attr("margin-right", "16px")
 				 .attr("font-size", "17px")
 				 .attr("size", 30)
-				 .attr("onkeydown", "search(this)");	      
+				 .attr("onkeydown", "search(this)");
 
-	     
+
 	     var subcontainer = entity_explorer.append('div')
 					       .style('overflow','auto')
 					       .style('max-height','100%')
@@ -130,39 +132,39 @@
 	     var subsubcontainer = subcontainer.append('div')
 					       .style('height','1100%')
 					       .style('width','100%')
-	     
+
 	     var container = subsubcontainer.append('svg')
 					    .style('width','100%')
 					    .style('height','100%')
 					    .style('position','abosolute')
 					    .style('top','0%')
 					    .style('left','0%');
-	     	   
-	     var y_break = .02*height;
+
+	     var y_break = 20;
 
 	     //text objects, one per entity
 	     container.selectAll('text')
-		      .data(Object.keys(data))
+		      .data(top_entities)
 		      .enter()
 		      .append('text')
 		      .attr('x','0%')
 		      .attr('y',function(d,i) { return  y_break * i; })
-		      .text(function(d) { return d; })
-		      .attr('font-size','20px')
+		      .text(function(d) { return d.name; })
+		      .attr('font-size','16px')
 		      .attr('fill','white')
 		      .on('click',function(d){
-			  console.log(d);
-			  refresh_linegraph(d);
-			  plot_bargraph(d);
+    			  console.log(d.name);
+    			  refresh_linegraph(d.name);
+    			  plot_bargraph(d.name);
 		      })
 		      .on('mouseover',function(d){
 			  d3.select(this).style('cursor','pointer');
 		      });
-	     
-	     
+
+
 	     bargraph = d3.select('body').append('div');
 	     linegraph = d3.select('body').append('div');
-	     
+
 	     bargraph.attr('id','bargraph')
 		     .style('transform','translate(0,' + .3*height + ')')
 		     .style('width',"75%")
@@ -170,15 +172,15 @@
 		     .style('position','absolute')
 		     .style('top',function() { return '10%'; })
 		     .style('left',function() { return '0%'; });
-	     
+
 	     linegraph.attr('id','linegraph')
-		      .style('transform','translate(0,' + .7*height + ')') 
+		      .style('transform','translate(0,' + .7*height + ')')
 		      .style('width',"75%")
 		      .style('height','45%')
 		      .style('position','absolute')
-		      .style('top',function() { return '55%'; }) 
+		      .style('top',function() { return '55%'; })
 		      .style('left',function() { return '0%'; });
-	     
+
 	     Plotly.plot('linegraph' , [],
 			 {
 			     title: 'Average Sentiment by News Org From November 11-22, 2018',
@@ -190,15 +192,15 @@
 			     plot_bgcolor: 'rgba(0,0,0,0)',
 			     font: {color: 'white'}
 			 })
-	     
+
 	     add_to_linegraph('Donald Trump','CNN');
 	     plot_bargraph('Donald Trump');
-	     
+
 	     document.getElementById('bargraph').on('plotly_click',  function(data){
 		 var news_org = data.points[0].x;
 		 add_to_linegraph('Donald Trump',news_org);
 	     });
-	     
+
 	 };
 	 function search(ele) {
 	     if(event.key === 'Enter') {
@@ -208,13 +210,13 @@
 		     if (keys[i].toLowerCase().includes(ele.value.toLowerCase())) {
 			 plot_bargraph(keys[i]);
 			 //doesn't automatically replace, so have to remove listener first)
-			 document.getElementById('bargraph').removeAllListeners('plotly_click');	
-			 document.getElementById('bargraph').on('plotly_click', function(data){	
+			 document.getElementById('bargraph').removeAllListeners('plotly_click');
+			 document.getElementById('bargraph').on('plotly_click', function(data){
 			     var news_org = data.points[0].x;
-			     add_to_linegraph(keys[i],news_org);			      
+			     add_to_linegraph(keys[i],news_org);
 			 });
-			 refresh_linegraph(keys[i]);			
-			 
+			 refresh_linegraph(keys[i]);
+
 			 found = true;
 			 break;
 		     }
@@ -229,18 +231,18 @@
 	     var temp_news_orgs = [];
 	     for (var j=0;j<selected_news_orgs.length; j++){
 		 news_org = selected_news_orgs[j];
-		 temp_news_orgs.push(news_org);		 
+		 temp_news_orgs.push(news_org);
 	     }
 	     for (var j=0;j<temp_news_orgs.length;j++){
 		 news_org = temp_news_orgs[j];
-		 remove_from_linegraph(news_org);		 
+		 remove_from_linegraph(news_org);
 	     }
 	     for (var j=0;j<temp_news_orgs.length;j++){
 		 news_org = temp_news_orgs[j];
 		 add_to_linegraph(name,news_org);
 	     }
-	 }	 	 
-	 
+	 }
+
 	 function remove_from_linegraph(news_org){
 	     var i = selected_news_orgs.indexOf(news_org);
 	     if (i==-1) return;
@@ -249,7 +251,7 @@
 	     selected_news_orgs.splice(i,1);
 	     return;
 	 }
-	 
+
 	 function add_to_linegraph(name, news_org){
 	     if (selected_news_orgs.includes(news_org)){
 		 remove_from_linegraph(news_org);
@@ -261,7 +263,7 @@
 	     selected_news_orgs.push(news_org);
 	     selected_colors[news_org] = color
 	 }
-	 
+
 	 function plot_bargraph(name){
 	     try{
 		 Plotly.deleteTraces('bargraph',0);
@@ -270,7 +272,7 @@
 	     }catch{
 		 first_time = true;
 	     }
-	     
+
 	     var trace1 = {
 		 x: labels,
 		 y: get_avg_sentiments(name,'positive'),
@@ -279,7 +281,7 @@
 		 marker: {color: green},
 		 type: 'bar'
 	     };
-	     
+
 	     var trace2 = {
 		 x: labels,
 		 y: get_avg_sentiments(name,'negative'),
@@ -303,9 +305,9 @@
 			//       legend: { x:0, y:1.1 },
 //			       yaxis: {range: [-5,5]},
 			       title: 'Percent Positive and Negative Average Sentiment By News Organization From 11/14-11/22 for ' + name};
-		 Plotly.plot('bargraph',traces, layout);		
+		 Plotly.plot('bargraph',traces, layout);
 	     }
-	 }	 
+	 }
 	</script>
     </body>
 </html>
