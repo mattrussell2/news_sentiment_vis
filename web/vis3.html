@@ -142,7 +142,7 @@
 
 	     //you need all of these containers to make scrollable div. sketchy...but it works
 	     entity_explorer = d3.select('body').append('div')
-				 .style('width','25%')
+				 .style('width','24%')
 				 .style('height','90%')
 				 .style('position','relative')
 				 .style('left','76%')
@@ -274,7 +274,8 @@
 
 	 function refresh_linegraph(name){
 	     var temp_news_orgs = [];
-       update_total_on_linegraph(name);
+       remove_total_from_linegraph();
+       add_total_to_linegraph(name);
 	     for (var j=0;j<selected_news_orgs.length; j++){
     		 news_org = selected_news_orgs[j];
     		 temp_news_orgs.push(news_org);
@@ -305,36 +306,8 @@
    function add_total_to_linegraph(name) {
 	     sentiment_data = get_total_weekly_sentiments(name);
 	     color = "yellow";
-	     Plotly.addTraces('linegraph', [{x: dates, y:sentiment_data, hoverinfo: 'y',name:"total average", marker: { color: color}}]);
+	     Plotly.addTraces('linegraph', [{x: dates, y:sentiment_data, hoverinfo: 'y',name:"total average", marker: { color: color}}], 0);
 	 }
-
-   function update_total_on_linegraph(name) {
-	     sentiment_data = get_total_weekly_sentiments(name);
-	     color = "yellow";
-       min = Math.min.apply(null,sentiment_data);
-       max = Math.max.apply(null,sentiment_data);
-       console.log(sentiment_data);
-       console.log(min);
-       console.log(max);
-	     //Plotly.animate('linegraph', [{x: dates, y:sentiment_data, hoverinfo: 'y',name:"total average", marker: { color: color}}]);
-       Plotly.animate('linegraph', {
-          data: [{y:sentiment_data, hoverinfo: 'y',name:"total average", marker: { color: color}}],
-          traces: [0],
-          layout: {
-              yaxis: {autorange: true}
-            }
-        }, {
-          transition: {
-            duration: 500,
-            easing: 'cubic-in-out'
-          },
-          frame: {
-            duration: 500
-          }
-        });
-        add_to_linegraph(name, "CNN");
-        remove_from_linegraph("CNN");
-   }
 
 	 function add_to_linegraph(name, news_org){
 	     if (selected_news_orgs.includes(news_org)){
