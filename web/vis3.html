@@ -74,7 +74,7 @@
 		 var normalized_neg = normalized_sentiment(day.negative.sentiment)
 		 var total_count = day.negative.count + day.positive.count + day.neutral.count
 		 //neutral counts as 0 for score, so no need to add to numerator.
-				       var avg_sentiment = (day.negative.count * normalized_neg + day.positive.count * normalized_pos) / total_count;
+		 var avg_sentiment = (day.negative.count * normalized_neg + day.positive.count * normalized_pos) / total_count;
 		 weekly_sentiments.push(avg_sentiment);
 	     }
 	     return weekly_sentiments;
