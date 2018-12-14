@@ -148,7 +148,7 @@
 		      .enter()
 		      .append('text')
 		      .attr('x','0%')
-		      .attr('y',function(d,i) { return  y_break * i; })
+		      .attr('y',function(d,i) { return  y_break * i + 20; })
 		      .text(function(d) { return d.name; })
 		      .attr('font-size','16px')
 		      .attr('fill','white')
@@ -301,7 +301,7 @@
 		 var layout = {barmode: 'relative', paper_bgcolor: 'rgba(0,0,0,0)',
 			       plot_bgcolor: 'rgba(0,0,0,0)',
 			       font: {color: 'white'},
-			       showlegend: false,			       
+			       showlegend: false,
 			//       legend: { x:0, y:1.1 },
 //			       yaxis: {range: [-5,5]},
 			       title: 'Percent Positive and Negative Average Sentiment By News Organization From 11/14-11/22 for ' + name};
