@@ -7,3 +7,4 @@ data/ contains the data collection pipeline - from querying the news apis, to se
 setup/ contains the google api key, as well as the requirements.txt file with pip libraries necessary to run stuff
 web/ contains files necessary for the website. 
 
+many thanks to megan monroe and charles winston!
