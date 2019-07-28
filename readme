@@ -4,7 +4,7 @@ we created an entity sentiment analysis pipeline for news media
 it can leverage google, ibm, and aylien entity sentiment apis
 
 data/ contains the data collection pipeline - from querying the news apis, to setting up the local SQL database. Cloud functionality coming. 
-setup/ contains the google api key, as well as the requirements.txt file with pip libraries necessary to run stuff
+setup/ contains the google api key, as well as requirements.txt
 web/ contains files necessary for the website. 
 
 many thanks to megan monroe and charles winston!
