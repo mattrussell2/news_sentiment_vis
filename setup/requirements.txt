@@ -1,5 +1,5 @@
 newsapi
-newsapi-python
+newsapi-python 
 newspaper3k
 google-api-python-client==1.7.4
 google-auth==1.5.1
