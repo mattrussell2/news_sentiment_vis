@@ -2,7 +2,7 @@ To explore the vis:
 
 go to:
 
-https://www.eecs.tufts.edu/~mrussell/vis/web/news_vis.html
+https://www.eecs.tufts.edu/~mrussell/news_vis/news_vis.html
 
 OR:
 
